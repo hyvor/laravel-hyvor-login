@@ -3,6 +3,7 @@
     "description": "Internal Package for HYVOR Applications",
     "type": "library",
     "license": "MIT",
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "Hyvor\\Internal\\": "src/"
