@@ -3,6 +3,9 @@
 namespace Hyvor\Internal\Billing;
 
 use Hyvor\Internal\InternalApi\ComponentType;
+use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
+use Hyvor\Internal\InternalApi\InternalApi;
+use Hyvor\Internal\InternalApi\InternalApiMethod;
 
 class Billing
 {
@@ -16,6 +19,7 @@ class Billing
      * @return array{token: string, redirect: string}
      */
     public static function newSubscription(
+        int $userId,
         ?int $resourceId,
         string $resourceName,
         float $monthlyPrice,
@@ -23,12 +27,10 @@ class Billing
         string $name,
         string $nameReadable,
         ComponentType $component = null,
-    ) : array
-    {
-
+    ): array {
         // validate decimal points
         if (str_contains((string)$monthlyPrice, '.')) {
-            $decimalPoints = strlen(explode('.', (string) $monthlyPrice)[1]);
+            $decimalPoints = strlen(explode('.', (string)$monthlyPrice)[1]);
             if ($decimalPoints > 2) {
                 throw new \InvalidArgumentException('Monthly price can have up to 2 decimal points');
             }
@@ -36,7 +38,8 @@ class Billing
 
         $component ??= ComponentType::current();
 
-        $object = new ObjectNewSubscription(
+        $object = new InternalNewSubscription(
+            $userId,
             $resourceId,
             $resourceName,
             $monthlyPrice,
@@ -58,16 +61,45 @@ class Billing
      * Returns the active subscription of a resource.
      *
      * @param int|null $resourceId The ID of the resource to get the subscription of. `null` for account-wide subscriptions.
+     * @param int|null $userId The ID of the user to get the subscription of. Only required if resource_id is `null`.
      * @param ComponentType|null $component The component to get the subscription from. Defaults to the current component.
+     * @throws InternalApiCallFailedException
      */
     public static function getSubscription(
-        ?int $resourceId,
+        ?int $resourceId = null,
+        ?int $userId = null,
         ComponentType $component = null,
-    ) : ?ObjectSubscription
-    {
+        bool $throw = false
+    ): ?InternalSubscription {
+        if ($resourceId === null && $userId === null) {
+            throw new \InvalidArgumentException('Either user_id or resource_id must be provided');
+        }
 
         $component ??= ComponentType::current();
 
+        try {
+            $response = InternalApi::call(
+                ComponentType::CORE,
+                InternalApiMethod::GET,
+                '/billing/subscription',
+                [
+                    'user_id' => $userId,
+                    'component' => $component,
+                    'resource_id' => $resourceId,
+                ]
+            );
+        } catch (InternalApiCallFailedException $e) {
+            if ($throw) {
+                throw $e;
+            }
+            return null;
+        }
+
+        if ($response['has_subscription']) {
+            return InternalSubscription::fromArray($response['subscription']);
+        }
+
+        return null;
     }
 
 }
