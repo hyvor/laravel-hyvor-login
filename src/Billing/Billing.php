@@ -104,4 +104,159 @@ class Billing
         return null;
     }
 
+    public static function getSubscriptionOfUser(
+        int $userId,
+        string $resourceType,
+        ?int $resourceId,
+        ComponentType $component = null,
+        bool $throw = false
+    ): ?InternalSubscription
+    {
+        $component ??= ComponentType::current();
+
+        try {
+            $response = InternalApi::call(
+                ComponentType::CORE,
+                InternalApiMethod::GET,
+                '/billing/subscription',
+                [
+                    'user_id' => $userId,
+                    'component' => $component,
+                    'resource_type' => $resourceType,
+                    'resource_id' => $resourceId,
+                ]
+            );
+        } catch (InternalApiCallFailedException $e) {
+            if ($throw) {
+                throw $e;   // TODO: Throw a custom Exception
+            }
+            return null;
+        }
+
+        if ($response['has_subscription']) {
+            return InternalSubscription::fromArray($response['subscription']);
+        }
+
+        return null;
+    }
+
+    public static function getSubscriptionOfResource(
+        string $resourceType,
+        ?int $resourceId,
+        ComponentType $component = null,
+        bool $throw = false
+    ): ?InternalSubscription
+    {
+        $component ??= ComponentType::current();
+
+        try {
+            $response = InternalApi::call(
+                ComponentType::CORE,
+                InternalApiMethod::GET,
+                '/billing/subscription',
+                [
+                    'component' => $component,
+                    'resource_type' => $resourceType,
+                    'resource_id' => $resourceId,
+                ]
+            );
+        } catch (InternalApiCallFailedException $e) {
+            if ($throw) {
+                throw $e;   // TODO: Throw a custom Exception
+            }
+            return null;
+        }
+
+        if ($response['has_subscription']) {
+            return InternalSubscription::fromArray($response['subscription']);
+        }
+
+        return null;
+    }
+
+
+    /**
+     * @param int[] $userIds
+     * @return InternalSubscription[]
+     */
+    public static function getSubscriptionsOfUsers(
+        array $userIds,
+        ?string $resourceType,
+        ComponentType $component = null,
+        bool $throw = false
+    ): ?array
+    {
+        $component ??= ComponentType::current();
+
+        try {
+            $response = InternalApi::call(
+                ComponentType::CORE,
+                InternalApiMethod::GET,
+                '/billing/subscriptions',
+                [
+                    'component' => $component,
+                    'user_ids' => $userIds,
+                    'resource_type' => $resourceType,
+                ]
+            );
+        } catch (InternalApiCallFailedException $e) {
+            if ($throw) {
+                throw $e;   // TODO: Throw a custom Exception
+            }
+            return null;
+        }
+
+        if ($response['has_subscriptions']) {
+            // TODO: Handle accordingly
+            return array_map(
+                fn($subscription) => InternalSubscription::fromArray($subscription),
+                $response['subscriptions']
+            );
+        }
+
+        return null;
+    }
+
+//    string $resourceType, int[] $resourceIds
+    /**
+     * @param int[] $resourceIds
+     * @return InternalSubscription[]
+     */
+    public static function getSubscriptionsOfResources(
+        string $resourceType,
+        array $resourceIds,
+        ComponentType $component = null,
+        bool $throw = false
+    ): ?array
+    {
+        $component ??= ComponentType::current();
+
+        try {
+            $response = InternalApi::call(
+                ComponentType::CORE,
+                InternalApiMethod::GET,
+                '/billing/subscriptions',
+                [
+                    'component' => $component,
+                    'resource_type' => $resourceType,
+                    'resource_ids' => $resourceIds,
+                ]
+            );
+        } catch (InternalApiCallFailedException $e) {
+            if ($throw) {
+                throw $e;   // TODO: Throw a custom Exception
+            }
+            return null;
+        }
+
+        if ($response['has_subscriptions']) {
+            // TODO: Handle accordingly
+            return array_map(
+                fn($subscription) => InternalSubscription::fromArray($subscription),
+                $response['subscriptions']
+            );
+        }
+
+        return null;
+    }
 }
