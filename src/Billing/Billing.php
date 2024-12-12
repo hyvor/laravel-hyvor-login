@@ -217,7 +217,6 @@ class Billing
         return null;
     }
 
-//    string $resourceType, int[] $resourceIds
     /**
      * @param int[] $resourceIds
      * @return InternalSubscription[]
