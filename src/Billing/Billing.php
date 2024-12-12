@@ -20,6 +20,7 @@ class Billing
      */
     public static function newSubscription(
         int $userId,
+        string $resourceType,
         ?int $resourceId,
         string $resourceName,
         float $monthlyPrice,
@@ -40,6 +41,7 @@ class Billing
 
         $object = new InternalNewSubscription(
             $userId,
+            $resourceType,
             $resourceId,
             $resourceName,
             $monthlyPrice,

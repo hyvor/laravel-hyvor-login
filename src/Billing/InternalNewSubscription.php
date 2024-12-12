@@ -12,6 +12,7 @@ class InternalNewSubscription
 
     public function __construct(
         public int $userId,
+        public string $resourceType,
         public ?int $resourceId,
         public ?string $resourceName,
         public float $monthlyPrice,
