@@ -203,7 +203,7 @@ class Billing
             if ($throw) {
                 throw $e;   // TODO: Throw a custom Exception
             }
-            return null;
+            return [];
         }
 
         if ($response['has_subscriptions']) {
@@ -214,7 +214,7 @@ class Billing
             );
         }
 
-        return null;
+        return [];
     }
 
     /**
@@ -245,7 +245,7 @@ class Billing
             if ($throw) {
                 throw $e;   // TODO: Throw a custom Exception
             }
-            return null;
+            return [];
         }
 
         if ($response['has_subscriptions']) {
@@ -256,6 +256,6 @@ class Billing
             );
         }
 
-        return null;
+        return [];
     }
 }
