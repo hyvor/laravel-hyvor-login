@@ -117,7 +117,7 @@ class Billing
         try {
             $response = InternalApi::call(
                 ComponentType::CORE,
-                InternalApiMethod::GET,
+                InternalApiMethod::POST,
                 '/billing/subscription',
                 [
                     'user_id' => $userId,
@@ -152,7 +152,7 @@ class Billing
         try {
             $response = InternalApi::call(
                 ComponentType::CORE,
-                InternalApiMethod::GET,
+                InternalApiMethod::POST,
                 '/billing/subscription',
                 [
                     'component' => $component,
@@ -191,7 +191,7 @@ class Billing
         try {
             $response = InternalApi::call(
                 ComponentType::CORE,
-                InternalApiMethod::GET,
+                InternalApiMethod::POST,
                 '/billing/subscriptions',
                 [
                     'component' => $component,
@@ -233,7 +233,7 @@ class Billing
         try {
             $response = InternalApi::call(
                 ComponentType::CORE,
-                InternalApiMethod::GET,
+                InternalApiMethod::POST,
                 '/billing/subscriptions',
                 [
                     'component' => $component,
