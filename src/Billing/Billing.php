@@ -22,7 +22,7 @@ class Billing
         int $userId,
         string $resourceType,
         ?int $resourceId,
-        string $resourceName,
+        ?string $resourceName,
         float $monthlyPrice,
         bool $isAnnual,
         string $name,
