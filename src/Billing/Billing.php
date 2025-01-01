@@ -11,14 +11,10 @@ class Billing
 {
 
     /**
-     * Generates a token for a new subscription and returns the URL to create a new subscription.
-     * @param int|null $resourceId The ID of the resource to subscribe (blog ID in HB). `null` for account-wide subscriptions.
-     * @param float $monthlyPrice The monthly price of the subscription in EUR. Up to 2 decimal points.
-     * @param bool $isAnnual Whether the subscription is annual.
-     * @param string $name The name of the subscription (plan name: "Premium")
-     * @return array{token: string, redirect: string}
+     * @see SubscriptionIntent
+     * @return array{token: string, urlNew: string, urlChange: string}
      */
-    public static function newSubscription(
+    public static function subscriptionIntent(
         int $userId,
         string $resourceType,
         ?int $resourceId,
@@ -39,7 +35,7 @@ class Billing
 
         $component ??= ComponentType::current();
 
-        $object = new InternalNewSubscription(
+        $object = new SubscriptionIntent(
             $userId,
             $resourceType,
             $resourceId,
@@ -53,9 +49,12 @@ class Billing
 
         $token = $object->encrypt();
 
+        $baseUrl = ComponentType::getUrlOf(ComponentType::CORE) . '/account/billing/subscription?token=' . $token;
+
         return [
             'token' => $token,
-            'redirect' => ComponentType::getUrlOf(ComponentType::CORE) . '/account/billing/new?token=' . $token
+            'urlNew' => $baseUrl,
+            'urlChange' => $baseUrl . '&change=1',
         ];
     }
 
