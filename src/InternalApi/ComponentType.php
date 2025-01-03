@@ -8,6 +8,15 @@ enum ComponentType : string
     case TALK = 'talk';
     case BLOGS = 'blogs';
 
+    public function name() : string
+    {
+        return match ($this) {
+            self::CORE => 'HYVOR',
+            self::TALK => 'Hyvor Talk',
+            self::BLOGS => 'Hyvor Blogs',
+        };
+    }
+
     /**
      * @deprecated
      * @codeCoverageIgnore
