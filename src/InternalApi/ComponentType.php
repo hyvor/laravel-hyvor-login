@@ -42,6 +42,15 @@ enum ComponentType : string
         }
     }
 
+    public function toReadable(): string
+    {
+        return match ($this) {
+            self::CORE => 'Hyvor Core',
+            self::TALK => 'Hyvor Talk',
+            self::BLOGS => 'Hyvor Blogs',
+        };
+    }
+
     public function getUrlOfFrom(self $type) : string
     {
 
