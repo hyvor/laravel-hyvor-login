@@ -1,6 +1,6 @@
 <?php
 
-namespace Hyvor\Internal\Billing\Feature\Bag;
+namespace Hyvor\Internal\Billing\FeatureBag;
 
 class TalkFeatureBag extends FeatureBag
 {

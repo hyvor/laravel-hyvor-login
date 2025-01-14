@@ -1,8 +1,8 @@
 <?php
 
-namespace Hyvor\Internal\Billing\Feature\Plan;
+namespace Hyvor\Internal\Billing\Plan;
 
-use Hyvor\Internal\Billing\Feature\Bag\BlogsFeatureBag;
+use Hyvor\Internal\Billing\FeatureBag\BlogsFeatureBag;
 
 enum BlogsPlans : string implements PlanInterface
 {

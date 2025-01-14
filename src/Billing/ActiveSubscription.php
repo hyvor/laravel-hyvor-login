@@ -2,8 +2,8 @@
 
 namespace Hyvor\Internal\Billing;
 
-use Hyvor\Internal\Billing\Feature\Bag\FeatureBag;
-use Hyvor\Internal\Billing\Feature\Plan\PlanInterface;
+use Hyvor\Internal\Billing\FeatureBag\FeatureBag;
+use Hyvor\Internal\Billing\Plan\PlanInterface;
 use Hyvor\Internal\InternalApi\ComponentType;
 
 /**

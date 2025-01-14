@@ -2,12 +2,12 @@
 
 namespace Hyvor\Internal\InternalApi;
 
-use Hyvor\Internal\Billing\Feature\Bag\BlogsFeatureBag;
-use Hyvor\Internal\Billing\Feature\Bag\CoreFeatureBag;
-use Hyvor\Internal\Billing\Feature\Bag\FeatureBag;
-use Hyvor\Internal\Billing\Feature\Bag\TalkFeatureBag;
-use Hyvor\Internal\Billing\Feature\Plan\BlogsPlans;
-use Hyvor\Internal\Billing\Feature\Plan\PlanInterface;
+use Hyvor\Internal\Billing\FeatureBag\BlogsFeatureBag;
+use Hyvor\Internal\Billing\FeatureBag\CoreFeatureBag;
+use Hyvor\Internal\Billing\FeatureBag\FeatureBag;
+use Hyvor\Internal\Billing\FeatureBag\TalkFeatureBag;
+use Hyvor\Internal\Billing\Plan\BlogsPlans;
+use Hyvor\Internal\Billing\Plan\PlanInterface;
 
 enum ComponentType : string
 {

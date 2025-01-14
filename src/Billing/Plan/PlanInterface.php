@@ -1,8 +1,8 @@
 <?php
 
-namespace Hyvor\Internal\Billing\Feature\Plan;
+namespace Hyvor\Internal\Billing\Plan;
 
-use Hyvor\Internal\Billing\Feature\Bag\FeatureBag;
+use Hyvor\Internal\Billing\FeatureBag\FeatureBag;
 
 interface PlanInterface
 {

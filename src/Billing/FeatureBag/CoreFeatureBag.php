@@ -1,7 +1,10 @@
 <?php
 
-namespace Hyvor\Internal\Billing\Feature\Bag;
+namespace Hyvor\Internal\Billing\FeatureBag;
 
+/**
+ * Core features = Enterprise features
+ */
 class CoreFeatureBag extends FeatureBag
 {
 

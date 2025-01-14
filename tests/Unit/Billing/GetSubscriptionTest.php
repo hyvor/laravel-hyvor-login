@@ -3,11 +3,10 @@
 namespace Hyvor\Internal\Tests\Unit\Billing;
 
 use Hyvor\Internal\Billing\Billing;
-use Hyvor\Internal\Billing\Feature\Plan\BlogsPlans;
+use Hyvor\Internal\Billing\Plan\BlogsPlans;
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
-use function PHPStan\dumpType;
 
 class GetSubscriptionTest extends  TestCase
 {
@@ -50,14 +49,15 @@ class GetSubscriptionTest extends  TestCase
         $subscription = Billing::getSubscriptionOfUser(ComponentType::BLOGS, 1);
         assert($subscription !== null);
 
-        dumpType($subscription);
-        dumpType($subscription->features);
-
         $this->assertEquals(10.00, $subscription->monthlyPrice);
         $this->assertEquals(100.00, $subscription->annualPrice);
         $this->assertFalse($subscription->isAnnual);
         $this->assertEquals(BlogsPlans::STARTER, $subscription->plan);
         $this->assertEquals(1, $subscription->features->users);
+        $this->assertEquals(5, $subscription->features->storageGb);
+        $this->assertTrue($subscription->features->analyses);
+        $this->assertTrue($subscription->features->noBranding);
+        $this->assertTrue($subscription->features->integrationHyvorTalk);
 
     }
 
