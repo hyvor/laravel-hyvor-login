@@ -2,6 +2,13 @@
 
 namespace Hyvor\Internal\InternalApi;
 
+use Hyvor\Internal\Billing\Feature\Bag\BlogsFeatureBag;
+use Hyvor\Internal\Billing\Feature\Bag\CoreFeatureBag;
+use Hyvor\Internal\Billing\Feature\Bag\FeatureBag;
+use Hyvor\Internal\Billing\Feature\Bag\TalkFeatureBag;
+use Hyvor\Internal\Billing\Feature\Plan\BlogsPlans;
+use Hyvor\Internal\Billing\Feature\Plan\PlanInterface;
+
 enum ComponentType : string
 {
     case CORE = 'core';
@@ -74,6 +81,34 @@ enum ComponentType : string
     public static function getUrlOf(self $type) : string
     {
         return self::current()->getUrlOfFrom($type);
+    }
+
+
+    /**
+     * @return class-string<FeatureBag>
+     */
+    public function featureBag(): string
+    {
+
+        return match ($this) {
+            self::CORE => CoreFeatureBag::class,
+            self::TALK => TalkFeatureBag::class,
+            self::BLOGS => BlogsFeatureBag::class,
+        };
+
+    }
+
+    /**
+     * @return class-string<PlanInterface&\BackedEnum>|null
+     */
+    public function plans(): ?string
+    {
+
+        return match ($this) {
+            self::CORE, self::TALK => null,
+            self::BLOGS => BlogsPlans::class,
+        };
+
     }
 
 }

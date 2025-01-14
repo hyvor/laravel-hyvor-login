@@ -7,11 +7,21 @@ This package provides the following features for HYVOR applications in Laravel:
 - Media route
 - Internationalization
 - Component API
+- Billing API
 
 ## Installation
 
+Install via composer:
+
 ```bash
 composer require hyvor/internal
+```
+
+Include `./vendor/hyvor/internal/extension.neon` in your PHPStan config:
+
+```bash
+includes:
+    - ./vendor/hyvor/internal/extension.neon
 ```
 
 ## Auth
