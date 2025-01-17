@@ -7,7 +7,9 @@ use Hyvor\Internal\Billing\FeatureBag\CoreFeatureBag;
 use Hyvor\Internal\Billing\FeatureBag\FeatureBag;
 use Hyvor\Internal\Billing\FeatureBag\TalkFeatureBag;
 use Hyvor\Internal\Billing\Plan\BlogsPlans;
+use Hyvor\Internal\Billing\Plan\CorePlans;
 use Hyvor\Internal\Billing\Plan\PlanInterface;
+use Hyvor\Internal\Billing\Plan\TalkPlans;
 
 enum ComponentType : string
 {
@@ -40,6 +42,9 @@ enum ComponentType : string
         return self::from($config);
     }
 
+    /**
+     * @deprecated Use ComponentType::current instead
+     */
     public function getCoreUrl() : string
     {
         $currentUrl = config('internal.instance');
@@ -58,6 +63,9 @@ enum ComponentType : string
         }
     }
 
+    /**
+     * @deprecated Use InstanceUrl::componentUrl instead
+     */
     public function getUrlOfFrom(self $type) : string
     {
 
@@ -78,6 +86,9 @@ enum ComponentType : string
 
     }
 
+    /**
+     * @deprecated Use InstanceUrl::componentUrl instead
+     */
     public static function getUrlOf(self $type) : string
     {
         return self::current()->getUrlOfFrom($type);
@@ -99,13 +110,14 @@ enum ComponentType : string
     }
 
     /**
-     * @return class-string<PlanInterface&\BackedEnum>|null
+     * @return class-string<PlanInterface&\BackedEnum>
      */
-    public function plans(): ?string
+    public function plans(): string
     {
 
         return match ($this) {
-            self::CORE, self::TALK => null,
+            self::TALK => TalkPlans::class,
+            self::CORE => CorePlans::class,
             self::BLOGS => BlogsPlans::class,
         };
 

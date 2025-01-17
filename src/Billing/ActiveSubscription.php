@@ -14,6 +14,11 @@ class ActiveSubscription
 {
 
     /**
+     * @var TPlan|null
+     */
+    public ?PlanInterface $plan;
+
+    /**
      * @var TFeatures
      */
     public FeatureBag $features;
@@ -22,15 +27,10 @@ class ActiveSubscription
     public bool $isAnnual;
 
     /**
-     * @var TPlan|null
-     */
-    public ?PlanInterface $plan;
-
-    /**
      * @param array{
-     *     monthly_price: float,
-     *     annual_price: float,
-     *     is_annual: bool,
+     *     monthlyPrice: float,
+     *     annualPrice: float,
+     *     isAnnual: bool,
      *     plan: string|null,
      *     features: array<string, mixed>,
      * } $data
@@ -38,9 +38,9 @@ class ActiveSubscription
     public static function fromArray(ComponentType $component, array $data): self
     {
         $subscription = new self();
-        $subscription->monthlyPrice = $data['monthly_price'];
-        $subscription->annualPrice = $data['annual_price'];
-        $subscription->isAnnual = $data['is_annual'];
+        $subscription->monthlyPrice = $data['monthlyPrice'];
+        $subscription->annualPrice = $data['annualPrice'];
+        $subscription->isAnnual = $data['isAnnual'];
 
         $componentPlans = $component->plans();
         $subscription->plan =

@@ -2,11 +2,11 @@
 
 namespace Hyvor\Internal\Billing;
 
+use Hyvor\Internal\Billing\Plan\PlanInterface;
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
 use Hyvor\Internal\InternalApi\InternalApi;
 use Hyvor\Internal\InternalApi\InternalApiMethod;
-use function PHPStan\dumpType;
 
 class Billing
 {
@@ -17,15 +17,14 @@ class Billing
      */
     public static function subscriptionIntent(
         int $userId,
-        string $resourceType,
-        ?int $resourceId,
-        ?string $resourceName,
         float $monthlyPrice,
         bool $isAnnual,
-        string $name,
-        string $nameReadable,
-        ComponentType $component = null,
+        PlanInterface&\BackedEnum $plan,
+        ?ComponentType $component = null,
     ): array {
+        $component ??= ComponentType::current();
+
+
         // validate decimal points
         if (str_contains((string)$monthlyPrice, '.')) {
             $decimalPoints = strlen(explode('.', (string)$monthlyPrice)[1]);
@@ -34,18 +33,17 @@ class Billing
             }
         }
 
-        $component ??= ComponentType::current();
+        // validate plan name
+        if ($component->plans()::tryFrom($plan->value) === null) {
+            throw new \InvalidArgumentException("Invalid plan name: {$plan->value}");
+        }
 
         $object = new SubscriptionIntent(
+            $component,
             $userId,
-            $resourceType,
-            $resourceId,
-            $resourceName,
             $monthlyPrice,
             $isAnnual,
-            $name,
-            $nameReadable,
-            $component,
+            (string) $plan->value,
         );
 
         $token = $object->encrypt();
@@ -65,6 +63,7 @@ class Billing
      *
      * Dynamic return types: Hyvor\Internal\PHPStan\BillingGetSubscriptionReturnTypeExtension
      *
+     * @deprecated
      * @param ComponentType $component The component (product) to get the subscription of. Required for type safety.
      * @param int $userId The ID of the user to get the subscription of.
      * @return ActiveSubscription|null If the user has an active subscription, it will be returned. Otherwise, null.
@@ -99,7 +98,7 @@ class Billing
      * @return ActiveSubscription|null If the user has an active subscription, it will be returned. Otherwise, null.
      * @throws InternalApiCallFailedException
      */
-    public function getSubscriptionOfResource(ComponentType $component, int $resourceId): ?ActiveSubscription
+    public static function getSubscriptionOfResource(ComponentType $component, int $resourceId): ?ActiveSubscription
     {
 
         $response = InternalApi::call(
@@ -112,7 +111,9 @@ class Billing
             ]
         );
 
-        return null;
+        $subscription = $response['subscription'];
+
+        return $subscription ? ActiveSubscription::fromArray($component, $subscription) : null;
 
     }
 

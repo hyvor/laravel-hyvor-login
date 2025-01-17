@@ -6,12 +6,12 @@ class BlogsFeatureBag extends FeatureBag
 {
 
     public function __construct(
-        public int $users,
-        public int $storageGb,
+        public int $users = 1,
+        public int $storageGb = 2,
         // SEO and link analysis
-        public bool $analyses,
-        public bool $noBranding,
-        public bool $integrationHyvorTalk,
+        public bool $analyses = false,
+        public bool $noBranding = false,
+        public int $integrationHyvorTalkCreditsMillion = 1,
     )
     {
     }

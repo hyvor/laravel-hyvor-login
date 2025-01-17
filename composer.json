@@ -21,7 +21,7 @@
         }
     ],
     "require-dev": {
-        "orchestra/testbench": "^8.0",
+        "orchestra/testbench": "^9.0",
         "phpstan/phpstan": "^1.10",
         "pestphp/pest": "^2.25"
     },

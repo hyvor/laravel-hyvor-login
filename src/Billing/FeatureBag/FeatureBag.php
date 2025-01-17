@@ -2,6 +2,8 @@
 
 namespace Hyvor\Internal\Billing\FeatureBag;
 
+use Illuminate\Support\Facades\Log;
+
 abstract class FeatureBag
 {
 
@@ -20,7 +22,7 @@ abstract class FeatureBag
             if (array_key_exists($propertyName, $data)) {
                 $property->setValue($instance, $data[$propertyName]);
             } else {
-                throw new \InvalidArgumentException("Property $propertyName is missing in the data array");
+                Log::alert("Property $propertyName is missing in the feature bag data array");
             }
         }
 

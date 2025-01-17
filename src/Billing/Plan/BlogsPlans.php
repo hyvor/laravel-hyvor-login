@@ -11,6 +11,25 @@ enum BlogsPlans : string implements PlanInterface
     case GROWTH = 'growth';
     case PREMIUM = 'premium';
 
+
+    public function getMonthlyPrice(): float
+    {
+        return match ($this) {
+            self::STARTER => 12,
+            self::GROWTH => 40,
+            self::PREMIUM => 125,
+        };
+    }
+
+    public function toReadableString(): string
+    {
+        return match ($this) {
+            self::STARTER => 'Starter',
+            self::GROWTH => 'Growth',
+            self::PREMIUM => 'Premium',
+        };
+    }
+
     public function getFeatureBag(): BlogsFeatureBag
     {
 
@@ -21,7 +40,6 @@ enum BlogsPlans : string implements PlanInterface
                 storageGb: 1,
                 analyses: false,
                 noBranding: false,
-                integrationHyvorTalk: false
             ),
 
             self::GROWTH => new BlogsFeatureBag(
@@ -29,7 +47,6 @@ enum BlogsPlans : string implements PlanInterface
                 storageGb: 40,
                 analyses: true,
                 noBranding: true,
-                integrationHyvorTalk: true
             ),
 
             self::PREMIUM => new BlogsFeatureBag(
@@ -37,7 +54,6 @@ enum BlogsPlans : string implements PlanInterface
                 storageGb: 250,
                 analyses: true,
                 noBranding: true,
-                integrationHyvorTalk: true
             ),
 
         };
