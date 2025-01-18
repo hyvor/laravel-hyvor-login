@@ -2,59 +2,63 @@
 
 namespace Hyvor\Internal\Tests\Unit\Billing;
 
-
 use Hyvor\Internal\Billing\Billing;
-use Hyvor\Internal\Billing\SubscriptionStatus;
+use Hyvor\Internal\Billing\Plan\BlogsPlans;
 use Hyvor\Internal\InternalApi\ComponentType;
+use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
 
-describe('get subscription', function() {
+class GetSubscriptionTest extends  TestCase
+{
 
-    it('no subscription', function() {
+    public function testNoSubscriptions(): void
+    {
 
         Http::fake([
             'https://hyvor.com/api/internal/billing/subscription*' => Http::response([
-                'has_subscription' => false,
+                'subscription' => null,
             ])
         ]);
 
-        $subscription = Billing::getSubscription(1);
+        $subscription = Billing::getSubscriptionOfUser(ComponentType::TALK, 1);
+        $this->assertNull($subscription);
 
-        expect($subscription)->toBeNull();
+    }
 
-    });
-
-    it('with subscription', function() {
+    public function testWithBlogsSubscription() : void
+    {
 
         Http::fake([
             'https://hyvor.com/api/internal/billing/subscription*' => Http::response([
-                'has_subscription' => true,
                 'subscription' => [
-                    'id' => 1,
-                    'status' => 'active',
-                    'user_id' => 1,
+                    'monthly_price' => 10.00,
+                    'annual_price' => 100.00,
                     'is_annual' => false,
-                    'component' => 'talk',
-                    'resource_id' => null,
-                    'monthly_price' => 2.23,
-                    'name' => 'Premium',
-                    'name_readable' => 'Premium'
+                    'plan' => 'starter',
+                    'features' => [
+                        'users' => 1,
+                        'storageGb' => 5,
+                        'analyses' => true,
+                        'noBranding' => true,
+                        'integrationHyvorTalk' => true,
+                    ]
                 ]
             ])
         ]);
 
-        $subscription = Billing::getSubscription(1);
+        $subscription = Billing::getSubscriptionOfUser(ComponentType::BLOGS, 1);
+        assert($subscription !== null);
 
-        expect($subscription->id)->toBe(1);
-        expect($subscription->status)->toBe(SubscriptionStatus::ACTIVE);
-        expect($subscription->user_id)->toBe(1);
-        expect($subscription->is_annual)->toBeFalse();
-        expect($subscription->component)->toBe(ComponentType::TALK);
-        expect($subscription->resource_id)->toBeNull();
-        expect($subscription->monthly_price)->toBe(2.23);
-        expect($subscription->name)->toBe('Premium');
-        expect($subscription->name_readable)->toBe('Premium');
+        $this->assertEquals(10.00, $subscription->monthlyPrice);
+        $this->assertEquals(100.00, $subscription->annualPrice);
+        $this->assertFalse($subscription->isAnnual);
+        $this->assertEquals(BlogsPlans::STARTER, $subscription->plan);
+        $this->assertEquals(1, $subscription->features->users);
+        $this->assertEquals(5, $subscription->features->storageGb);
+        $this->assertTrue($subscription->features->analyses);
+        $this->assertTrue($subscription->features->noBranding);
+        $this->assertTrue($subscription->features->integrationHyvorTalk);
 
-    });
+    }
 
-});
+}

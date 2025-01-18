@@ -2,6 +2,7 @@
 
 namespace Hyvor\Internal\Billing;
 
+use Hyvor\Internal\Billing\Plan\PlanInterface;
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
 use Hyvor\Internal\InternalApi\InternalApi;
@@ -16,15 +17,14 @@ class Billing
      */
     public static function subscriptionIntent(
         int $userId,
-        string $resourceType,
-        ?int $resourceId,
-        ?string $resourceName,
         float $monthlyPrice,
         bool $isAnnual,
-        string $name,
-        string $nameReadable,
-        ComponentType $component = null,
+        PlanInterface&\BackedEnum $plan,
+        ?ComponentType $component = null,
     ): array {
+        $component ??= ComponentType::current();
+
+
         // validate decimal points
         if (str_contains((string)$monthlyPrice, '.')) {
             $decimalPoints = strlen(explode('.', (string)$monthlyPrice)[1]);
@@ -33,18 +33,17 @@ class Billing
             }
         }
 
-        $component ??= ComponentType::current();
+        // validate plan name
+        if ($component->plans()::tryFrom($plan->value) === null) {
+            throw new \InvalidArgumentException("Invalid plan name: {$plan->value}");
+        }
 
         $object = new SubscriptionIntent(
+            $component,
             $userId,
-            $resourceType,
-            $resourceId,
-            $resourceName,
             $monthlyPrice,
             $isAnnual,
-            $name,
-            $nameReadable,
-            $component,
+            (string) $plan->value,
         );
 
         $token = $object->encrypt();
@@ -59,202 +58,63 @@ class Billing
     }
 
     /**
-     * Returns the active subscription of a resource.
+     * If the product has account-level subscriptions,
+     * use this method to get the subscription of a user.
      *
-     * @param int|null $resourceId The ID of the resource to get the subscription of. `null` for account-wide subscriptions.
-     * @param int|null $userId The ID of the user to get the subscription of. Only required if resource_id is `null`.
-     * @param ComponentType|null $component The component to get the subscription from. Defaults to the current component.
+     * Dynamic return types: Hyvor\Internal\PHPStan\BillingGetSubscriptionReturnTypeExtension
+     *
+     * @deprecated
+     * @param ComponentType $component The component (product) to get the subscription of. Required for type safety.
+     * @param int $userId The ID of the user to get the subscription of.
+     * @return ActiveSubscription|null If the user has an active subscription, it will be returned. Otherwise, null.
      * @throws InternalApiCallFailedException
      */
-    public static function getSubscription(
-        ?int $resourceId = null,
-        ?int $userId = null,
-        ComponentType $component = null,
-        bool $throw = false
-    ): ?InternalSubscription {
-        if ($resourceId === null && $userId === null) {
-            throw new \InvalidArgumentException('Either user_id or resource_id must be provided');
-        }
-
-        $component ??= ComponentType::current();
-
-        try {
-            $response = InternalApi::call(
-                ComponentType::CORE,
-                InternalApiMethod::GET,
-                '/billing/subscription',
-                [
-                    'user_id' => $userId,
-                    'component' => $component,
-                    'resource_id' => $resourceId,
-                ]
-            );
-        } catch (InternalApiCallFailedException $e) {
-            if ($throw) {
-                throw $e;
-            }
-            return null;
-        }
-
-        if ($response['has_subscription']) {
-            return InternalSubscription::fromArray($response['subscription']);
-        }
-
-        return null;
-    }
-
-    public static function getSubscriptionOfUser(
-        int $userId,
-        string $resourceType,
-        ?int $resourceId,
-        ComponentType $component = null,
-        bool $throw = false
-    ): ?InternalSubscription
+    public static function getSubscriptionOfUser(ComponentType $component, int $userId): ?ActiveSubscription
     {
-        $component ??= ComponentType::current();
 
-        try {
-            $response = InternalApi::call(
-                ComponentType::CORE,
-                InternalApiMethod::POST,
-                '/billing/subscription',
-                [
-                    'user_id' => $userId,
-                    'component' => $component,
-                    'resource_type' => $resourceType,
-                    'resource_id' => $resourceId,
-                ]
-            );
-        } catch (InternalApiCallFailedException $e) {
-            if ($throw) {
-                throw $e;   // TODO: Throw a custom Exception
-            }
-            return null;
-        }
+        $response = InternalApi::call(
+            ComponentType::CORE,
+            InternalApiMethod::GET,
+            '/billing/subscription',
+            [
+                'component' => $component,
+                'user_id' => $userId,
+            ]
+        );
 
-        if ($response['has_subscription']) {
-            return InternalSubscription::fromArray($response['subscription']);
-        }
+        $subscription = $response['subscription'];
 
-        return null;
-    }
+        return $subscription ? ActiveSubscription::fromArray($component, $subscription) : null;
 
-    public static function getSubscriptionOfResource(
-        string $resourceType,
-        ?int $resourceId,
-        ComponentType $component = null,
-        bool $throw = false
-    ): ?InternalSubscription
-    {
-        $component ??= ComponentType::current();
-
-        try {
-            $response = InternalApi::call(
-                ComponentType::CORE,
-                InternalApiMethod::POST,
-                '/billing/subscription',
-                [
-                    'component' => $component,
-                    'resource_type' => $resourceType,
-                    'resource_id' => $resourceId,
-                ]
-            );
-        } catch (InternalApiCallFailedException $e) {
-            if ($throw) {
-                throw $e;   // TODO: Throw a custom Exception
-            }
-            return null;
-        }
-
-        if ($response['has_subscription']) {
-            return InternalSubscription::fromArray($response['subscription']);
-        }
-
-        return null;
-    }
-
-
-    /**
-     * @param int[] $userIds
-     * @return InternalSubscription[]
-     */
-    public static function getSubscriptionsOfUsers(
-        array $userIds,
-        ?string $resourceType,
-        ComponentType $component = null,
-        bool $throw = false
-    ): ?array
-    {
-        $component ??= ComponentType::current();
-
-        try {
-            $response = InternalApi::call(
-                ComponentType::CORE,
-                InternalApiMethod::POST,
-                '/billing/subscriptions',
-                [
-                    'component' => $component,
-                    'user_ids' => $userIds,
-                    'resource_type' => $resourceType,
-                ]
-            );
-        } catch (InternalApiCallFailedException $e) {
-            if ($throw) {
-                throw $e;   // TODO: Throw a custom Exception
-            }
-            return [];
-        }
-
-        if ($response['has_subscriptions']) {
-            // TODO: Handle accordingly
-            return array_map(
-                fn($subscription) => InternalSubscription::fromArray($subscription),
-                $response['subscriptions']
-            );
-        }
-
-        return [];
     }
 
     /**
-     * @param int[] $resourceIds
-     * @return InternalSubscription[]
+     * Get the active subscription of a resource (e.g., a blog).
+     *
+     * Dynamic return types: Hyvor\Internal\PHPStan\BillingGetSubscriptionReturnTypeExtension
+     *
+     * @param ComponentType $component The component (product) to get the subscription of. Required for type safety.
+     * @param int $resourceId The ID of the resource to get the subscription of.
+     * @return ActiveSubscription|null If the user has an active subscription, it will be returned. Otherwise, null.
+     * @throws InternalApiCallFailedException
      */
-    public static function getSubscriptionsOfResources(
-        string $resourceType,
-        array $resourceIds,
-        ComponentType $component = null,
-        bool $throw = false
-    ): ?array
+    public static function getSubscriptionOfResource(ComponentType $component, int $resourceId): ?ActiveSubscription
     {
-        $component ??= ComponentType::current();
 
-        try {
-            $response = InternalApi::call(
-                ComponentType::CORE,
-                InternalApiMethod::POST,
-                '/billing/subscriptions',
-                [
-                    'component' => $component,
-                    'resource_type' => $resourceType,
-                    'resource_ids' => $resourceIds,
-                ]
-            );
-        } catch (InternalApiCallFailedException $e) {
-            if ($throw) {
-                throw $e;   // TODO: Throw a custom Exception
-            }
-            return [];
-        }
+        $response = InternalApi::call(
+            ComponentType::CORE,
+            InternalApiMethod::GET,
+            '/billing/subscription',
+            [
+                'component' => $component,
+                'resource_id' => $resourceId,
+            ]
+        );
 
-        if ($response['has_subscriptions']) {
-            // TODO: Handle accordingly
-            return array_map(
-                fn($subscription) => InternalSubscription::fromArray($subscription),
-                $response['subscriptions']
-            );
-        }
+        $subscription = $response['subscription'];
 
-        return [];
+        return $subscription ? ActiveSubscription::fromArray($component, $subscription) : null;
+
     }
+
 }
