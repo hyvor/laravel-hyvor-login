@@ -2,14 +2,10 @@
 
 namespace Hyvor\Internal\InternalApi;
 
-use Hyvor\Internal\Billing\FeatureBag\BlogsFeatureBag;
-use Hyvor\Internal\Billing\FeatureBag\CoreFeatureBag;
-use Hyvor\Internal\Billing\FeatureBag\FeatureBag;
-use Hyvor\Internal\Billing\FeatureBag\TalkFeatureBag;
-use Hyvor\Internal\Billing\Plan\BlogsPlans;
-use Hyvor\Internal\Billing\Plan\CorePlans;
-use Hyvor\Internal\Billing\Plan\PlanInterface;
-use Hyvor\Internal\Billing\Plan\TalkPlans;
+use Hyvor\Internal\Billing\License\Plan\BlogsPlan;
+use Hyvor\Internal\Billing\License\Plan\CorePlan;
+use Hyvor\Internal\Billing\License\Plan\PlanAbstract;
+use Hyvor\Internal\Billing\License\Plan\TalkPlan;
 
 enum ComponentType : string
 {
@@ -95,31 +91,17 @@ enum ComponentType : string
     }
 
 
-    /**
-     * @return class-string<FeatureBag>
-     */
-    public function featureBag(): string
+
+    public function plans(): PlanAbstract
     {
 
-        return match ($this) {
-            self::CORE => CoreFeatureBag::class,
-            self::TALK => TalkFeatureBag::class,
-            self::BLOGS => BlogsFeatureBag::class,
+        $class = match ($this) {
+            self::TALK => TalkPlan::class,
+            self::CORE => CorePlan::class,
+            self::BLOGS => BlogsPlan::class,
         };
 
-    }
-
-    /**
-     * @return class-string<PlanInterface&\BackedEnum>
-     */
-    public function plans(): string
-    {
-
-        return match ($this) {
-            self::TALK => TalkPlans::class,
-            self::CORE => CorePlans::class,
-            self::BLOGS => BlogsPlans::class,
-        };
+        return new $class();
 
     }
 
