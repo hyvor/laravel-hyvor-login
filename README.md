@@ -34,7 +34,7 @@ This library provides a unified authentication system for the following provider
 
 ### Configuration
 
-The following environment variables are supported.  See `config.php` for configuration options. Environment variables should be set in the `.env` file.
+The following environment variables are supported. See `config.php` for configuration options. Environment variables should be set in the `.env` file.
 
 <table>
     <tr>
@@ -93,8 +93,8 @@ use Hyvor\Internal\Auth\AuthUser;
 
 // new instance
 new AuthUser(
-    id: $id, 
-    name: $name, 
+    id: $id,
+    name: $name,
     ...
 );
 
@@ -176,7 +176,7 @@ All endpoints support a `redirect` parameter to redirect the user to a specific 
 
 ### Testing
 
-In testing, the provider is always set to `fake`. The `FakeProvider` always generate dummy data for all requested ids, emails, and usernames. This is useful for testing. You may also set a database of users for the `FakeProvider` to return specific data for specific users as follows: 
+In testing, the provider is always set to `fake`. The `FakeProvider` always generate dummy data for all requested ids, emails, and usernames. This is useful for testing. You may also set a database of users for the `FakeProvider` to return specific data for specific users as follows:
 
 ```php
 use Hyvor\Internal\Auth\Providers\Fake\FakeProvider;
@@ -190,7 +190,7 @@ it('adds names to the email', function() {
             'name' => 'John Doe',
         ]
     ]);
-    
+
     // send email to user ID 1
     // then assert
     expect($email->body)->toContain('John Doe');
@@ -229,7 +229,7 @@ throw new HttpException('User not found', 404);
 
 #### Auth Middleware
 
-Use `Hyvor\Internal\Http\Middleware\AuthMiddleware` to require authentication for a route. 
+Use `Hyvor\Internal\Http\Middleware\AuthMiddleware` to require authentication for a route.
 
 ```php
 use Hyvor\Internal\Http\Middleware\AuthMiddleware;
@@ -242,7 +242,7 @@ If the user is not logged in, an `HttpException` is thrown with status code 401.
 ```php
 use Hyvor\Internal\Http\Middleware\AccessAuthUser;
 
-class MyController 
+class MyController
 {
     public function index(AccessAuthUser $user) {
         // $user is an instance of AccessAuthUser (extends AuthUser)
@@ -284,13 +284,13 @@ All JSON translation files should be places in a directory, which is set in the 
 
 ```json
 {
-    "welcome": "Welcome to HYVOR",
-    "email": "Your email is {email}.",
-    "signup": {
-        "title": "Sign Up"
-    }
+  "welcome": "Welcome to HYVOR",
+  "email": "Your email is {email}.",
+  "signup": {
+    "title": "Sign Up"
+  }
 }
-``` 
+```
 
 ### Usage
 

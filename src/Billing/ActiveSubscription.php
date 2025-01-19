@@ -2,21 +2,13 @@
 
 namespace Hyvor\Internal\Billing;
 
-use Hyvor\Internal\Billing\FeatureBag\FeatureBag;
-use Hyvor\Internal\Billing\Plan\PlanInterface;
+use Hyvor\Internal\Billing\License\Plan\Plan;
 use Hyvor\Internal\InternalApi\ComponentType;
 
-/**
- * @template TFeatures of FeatureBag = FeatureBag
- * @template TPlan of PlanInterface|null = PlanInterface|null
- */
 class ActiveSubscription
 {
 
-    /**
-     * @var TPlan|null
-     */
-    public ?PlanInterface $plan;
+    public ?Plan $plan;
 
     /**
      * @var TFeatures
