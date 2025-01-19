@@ -8,6 +8,7 @@ class Plan
 {
 
     public function __construct(
+        public int    $version,
         public string  $name,
         public float   $monthlyPrice,
         public License $licence,
@@ -18,6 +19,11 @@ class Plan
         public ?string $nameReadable = null,
     )
     {
+    }
+
+    public function getReadableName(): string
+    {
+        return $this->nameReadable ?? ucfirst($this->name);
     }
 
 }
