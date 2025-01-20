@@ -2,9 +2,9 @@
 
 namespace Hyvor\Internal\Billing;
 
-use Hyvor\Internal\Billing\Plan\PlanInterface;
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
+use Hyvor\Internal\InternalApi\InstanceUrl;
 use Hyvor\Internal\InternalApi\InternalApi;
 use Hyvor\Internal\InternalApi\InternalApiMethod;
 
@@ -19,7 +19,7 @@ class Billing
         int $userId,
         float $monthlyPrice,
         bool $isAnnual,
-        PlanInterface&\BackedEnum $plan,
+        string $planName,
         ?ComponentType $component = null,
     ): array {
         $component ??= ComponentType::current();
@@ -33,13 +33,13 @@ class Billing
             }
         }
 
-        // validate plan name
-        if ($component->plans()::tryFrom($plan->value) === null) {
-            throw new \InvalidArgumentException("Invalid plan name: {$plan->value}");
-        }
+        // this validates the plan name as well
+        $plan = $component->plans()->getPlan($planName);
 
         $object = new SubscriptionIntent(
             $component,
+            $plan->version,
+            $planName,
             $userId,
             $monthlyPrice,
             $isAnnual,
@@ -48,7 +48,7 @@ class Billing
 
         $token = $object->encrypt();
 
-        $baseUrl = ComponentType::getUrlOf(ComponentType::CORE) . '/account/billing/subscription?token=' . $token;
+        $baseUrl = InstanceUrl::getInstanceUrl() . '/account/billing/subscription?token=' . $token;
 
         return [
             'token' => $token,

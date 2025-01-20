@@ -22,6 +22,18 @@ class SubscriptionIntent
          */
         public ComponentType $component,
 
+        /**
+         * Version of the subscription plan as defined in each component's plan class.
+         */
+        public int $planVersion,
+
+        /**
+         * Name of the subscription plan.
+         *
+         * Ex: `premium_1` in talk
+         * Ex: `premium` in blogs
+         */
+        public string $plan,
 
         /**
          * User requesting the subscription
@@ -37,14 +49,6 @@ class SubscriptionIntent
          * Is this an annual subscription?
          */
         public bool $isAnnual,
-
-        /**
-         * Name of the subscription plan.
-         *
-         * Ex: `premium_1` in talk
-         * Ex: `premium` in blogs
-         */
-        public string $plan,
     ) {}
 
 
