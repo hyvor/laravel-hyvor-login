@@ -35,7 +35,7 @@ abstract class PlanAbstract
     protected function plan(
         string  $name,
         float   $monthlyPrice,
-        License $licence,
+        License $license,
         ?string $nameReadable = null,
     ): void
     {
@@ -44,7 +44,7 @@ abstract class PlanAbstract
             $this->currentVersionForConfig,
             $name,
             $monthlyPrice,
-            $licence,
+            $license,
             $nameReadable
         );
 

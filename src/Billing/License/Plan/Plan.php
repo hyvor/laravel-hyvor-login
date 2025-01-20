@@ -11,7 +11,7 @@ class Plan
         public int    $version,
         public string  $name,
         public float   $monthlyPrice,
-        public License $licence,
+        public License $license,
 
         /**
          * If the readable name is simply capitalized $name, you can leave this null.
