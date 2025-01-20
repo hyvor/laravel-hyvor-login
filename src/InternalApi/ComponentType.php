@@ -2,10 +2,14 @@
 
 namespace Hyvor\Internal\InternalApi;
 
+use Hyvor\Internal\Billing\License\BlogsLicense;
+use Hyvor\Internal\Billing\License\CoreLicense;
+use Hyvor\Internal\Billing\License\License;
 use Hyvor\Internal\Billing\License\Plan\BlogsPlan;
 use Hyvor\Internal\Billing\License\Plan\CorePlan;
 use Hyvor\Internal\Billing\License\Plan\PlanAbstract;
 use Hyvor\Internal\Billing\License\Plan\TalkPlan;
+use Hyvor\Internal\Billing\License\TalkLicense;
 
 enum ComponentType : string
 {
@@ -90,14 +94,24 @@ enum ComponentType : string
         return self::current()->getUrlOfFrom($type);
     }
 
-
+    /**
+     * @return class-string<License>
+     */
+    public function license() : string
+    {
+        return match ($this) {
+            self::CORE => CoreLicense::class,
+            self::TALK => TalkLicense::class,
+            self::BLOGS => BlogsLicense::class,
+        };
+    }
 
     public function plans(): PlanAbstract
     {
 
         $class = match ($this) {
-            self::TALK => TalkPlan::class,
             self::CORE => CorePlan::class,
+            self::TALK => TalkPlan::class,
             self::BLOGS => BlogsPlan::class,
         };
 

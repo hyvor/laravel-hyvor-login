@@ -2,6 +2,7 @@
 
 namespace Hyvor\Internal\Billing;
 
+use Hyvor\Internal\Billing\License\License;
 use Hyvor\Internal\Billing\License\Plan\Plan;
 use Hyvor\Internal\InternalApi\ComponentType;
 
@@ -9,11 +10,7 @@ class ActiveSubscription
 {
 
     public ?Plan $plan;
-
-    /**
-     * @var TFeatures
-     */
-    public FeatureBag $features;
+    public License $license;
     public float $monthlyPrice;
     public float $annualPrice;
     public bool $isAnnual;
@@ -24,7 +21,7 @@ class ActiveSubscription
      *     annualPrice: float,
      *     isAnnual: bool,
      *     plan: string|null,
-     *     features: array<string, mixed>,
+     *     license: array<string, mixed>,
      * } $data
      */
     public static function fromArray(ComponentType $component, array $data): self
@@ -36,11 +33,12 @@ class ActiveSubscription
 
         $componentPlans = $component->plans();
         $subscription->plan =
-            is_string($data['plan']) && $componentPlans ?
-            $componentPlans::tryFrom($data['plan']) :
+            is_string($data['plan']) ?
+            $componentPlans->getPlan($data['plan']) :
             null;
 
-        $subscription->features = $component->featureBag()::fromArray($data['features']);
+        $licenseClass = $component->license();
+        $subscription->license = $licenseClass::fromArray($data['license']);
 
         return $subscription;
     }
