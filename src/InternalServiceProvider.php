@@ -3,6 +3,7 @@
 namespace Hyvor\Internal;
 
 use Hyvor\Internal\InternalApi\InternalApi;
+use Hyvor\Internal\Laravel\Database\Command\DatabaseNukeCommand;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,6 +17,10 @@ class InternalServiceProvider extends ServiceProvider
         if (App::environment('testing')) {
             $this->loadRoutesFrom(__DIR__ . '/../routes/testing.php');
         }
+
+        $this->commands([
+            DatabaseNukeCommand::class
+        ]);
     }
 
     public function register()
