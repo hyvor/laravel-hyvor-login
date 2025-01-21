@@ -4,6 +4,9 @@ namespace Hyvor\Internal\Billing\License;
 
 use Illuminate\Support\Facades\Log;
 
+/**
+ * When creating a license, set the limits to that of the trial license.
+ */
 abstract class License
 {
 

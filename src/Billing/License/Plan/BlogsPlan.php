@@ -19,9 +19,12 @@ class BlogsPlan extends PlanAbstract
                 new BlogsLicense(
                     users: 2,
                     storageGb: 1,
+                    aiTokensK: 0,
+                    autoTranslationsCharsK: 0,
+                    talkCreditsK: 0,
+                    postEmailsK: 0,
                     analyses: false,
                     noBranding: false,
-                    integrationHyvorTalkCreditsK: null,
                 )
             );
 
@@ -31,9 +34,12 @@ class BlogsPlan extends PlanAbstract
                 new BlogsLicense(
                     users: 5,
                     storageGb: 40,
+                    aiTokensK: 100,
+                    autoTranslationsCharsK: 100,
+                    talkCreditsK: 100,
+                    postEmailsK: 25,
                     analyses: true,
                     noBranding: true,
-                    integrationHyvorTalkCreditsK: 100,
                 )
             );
 
@@ -48,9 +54,12 @@ class BlogsPlan extends PlanAbstract
                 new BlogsLicense(
                     users: 2,
                     storageGb: 2,
+                    aiTokensK: 0,
+                    autoTranslationsCharsK: 0,
+                    talkCreditsK: 0,
+                    postEmailsK: 0,
                     analyses: false,
                     noBranding: false,
-                    integrationHyvorTalkCreditsK: null,
                 )
             );
 
@@ -60,9 +69,12 @@ class BlogsPlan extends PlanAbstract
                 new BlogsLicense(
                     users: 10,
                     storageGb: 100,
+                    aiTokensK: 100,
+                    autoTranslationsCharsK: 100,
+                    talkCreditsK: 100,
+                    postEmailsK: 25,
                     analyses: true,
                     noBranding: true,
-                    integrationHyvorTalkCreditsK: 100,
                 )
             );
 
@@ -72,9 +84,12 @@ class BlogsPlan extends PlanAbstract
                 new BlogsLicense(
                     users: 50,
                     storageGb: 500,
+                    aiTokensK: 1000,
+                    autoTranslationsCharsK: 500,
+                    talkCreditsK: 250,
+                    postEmailsK: 100,
                     analyses: true,
                     noBranding: true,
-                    integrationHyvorTalkCreditsK: 500,
                 )
             );
 

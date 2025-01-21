@@ -2,8 +2,8 @@
 
 namespace Hyvor\Internal\Billing;
 
+use Hyvor\Internal\Billing\License\License;
 use Hyvor\Internal\InternalApi\ComponentType;
-use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
 use Hyvor\Internal\InternalApi\InstanceUrl;
 use Hyvor\Internal\InternalApi\InternalApi;
 use Hyvor\Internal\InternalApi\InternalApiMethod;
@@ -43,7 +43,6 @@ class Billing
             $userId,
             $monthlyPrice,
             $isAnnual,
-            (string) $plan->value,
         );
 
         $token = $object->encrypt();
@@ -58,62 +57,32 @@ class Billing
     }
 
     /**
-     * If the product has account-level subscriptions,
-     * use this method to get the subscription of a user.
-     *
-     * Dynamic return types: Hyvor\Internal\PHPStan\BillingGetSubscriptionReturnTypeExtension
-     *
-     * @deprecated
-     * @param ComponentType $component The component (product) to get the subscription of. Required for type safety.
-     * @param int $userId The ID of the user to get the subscription of.
-     * @return ActiveSubscription|null If the user has an active subscription, it will be returned. Otherwise, null.
-     * @throws InternalApiCallFailedException
+     * Get the license of a user.
      */
-    public static function getSubscriptionOfUser(ComponentType $component, int $userId): ?ActiveSubscription
+    public static function license(
+        int $userId,
+        ?int $resourceId,
+        ?ComponentType $component = null,
+    ) : ?License
     {
+
+        $component ??= ComponentType::current();
 
         $response = InternalApi::call(
             ComponentType::CORE,
             InternalApiMethod::GET,
-            '/billing/subscription',
+            '/billing/license',
             [
-                'component' => $component,
                 'user_id' => $userId,
-            ]
-        );
-
-        $subscription = $response['subscription'];
-
-        return $subscription ? ActiveSubscription::fromArray($component, $subscription) : null;
-
-    }
-
-    /**
-     * Get the active subscription of a resource (e.g., a blog).
-     *
-     * Dynamic return types: Hyvor\Internal\PHPStan\BillingGetSubscriptionReturnTypeExtension
-     *
-     * @param ComponentType $component The component (product) to get the subscription of. Required for type safety.
-     * @param int $resourceId The ID of the resource to get the subscription of.
-     * @return ActiveSubscription|null If the user has an active subscription, it will be returned. Otherwise, null.
-     * @throws InternalApiCallFailedException
-     */
-    public static function getSubscriptionOfResource(ComponentType $component, int $resourceId): ?ActiveSubscription
-    {
-
-        $response = InternalApi::call(
-            ComponentType::CORE,
-            InternalApiMethod::GET,
-            '/billing/subscription',
-            [
-                'component' => $component,
                 'resource_id' => $resourceId,
             ]
         );
 
-        $subscription = $response['subscription'];
+        /** @var ?array<mixed> $license */
+        $license = $response['license'];
+        $licenseClass = $component->license();
 
-        return $subscription ? ActiveSubscription::fromArray($component, $subscription) : null;
+        return $license ? $licenseClass::fromArray($license) : null;
 
     }
 
