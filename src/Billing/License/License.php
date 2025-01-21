@@ -2,6 +2,7 @@
 
 namespace Hyvor\Internal\Billing\License;
 
+use Hyvor\Internal\Util\Transfer\Serializable;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -10,7 +11,18 @@ use Illuminate\Support\Facades\Log;
 abstract class License
 {
 
+    use Serializable;
+
+    public DerivedFrom $derivedFrom;
+
+    public function setDerivedFrom(DerivedFrom $derivedFrom): static
+    {
+        $this->derivedFrom = $derivedFrom;
+        return $this;
+    }
+
     /**
+     * @deprecated
      * @param array<mixed> $data
      */
     public static function fromArray(array $data): static

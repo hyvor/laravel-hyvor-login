@@ -12,10 +12,23 @@ class Billing
 {
 
     /**
+     * @param License|(callable(int $userId, ?int $blogId, ComponentType $component) : License)|null $license
+     * @return void
+     */
+    public static function fake(
+        null|License|callable $license = null,
+    ): void
+    {
+        app()->bind(Billing::class, function () use ($license) {
+            return new BillingFake($license);
+        });
+    }
+
+    /**
      * @see SubscriptionIntent
      * @return array{token: string, urlNew: string, urlChange: string}
      */
-    public static function subscriptionIntent(
+    public function subscriptionIntent(
         int $userId,
         float $monthlyPrice,
         bool $isAnnual,
@@ -59,7 +72,7 @@ class Billing
     /**
      * Get the license of a user.
      */
-    public static function license(
+    public function license(
         int $userId,
         ?int $resourceId,
         ?ComponentType $component = null,
@@ -78,11 +91,11 @@ class Billing
             ]
         );
 
-        /** @var ?array<mixed> $license */
+        /** @var ?string $license */
         $license = $response['license'];
         $licenseClass = $component->license();
 
-        return $license ? $licenseClass::fromArray($license) : null;
+        return $license ? $licenseClass::unserialize($license) : null;
 
     }
 

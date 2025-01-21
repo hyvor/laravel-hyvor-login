@@ -6,6 +6,9 @@ use Hyvor\Internal\Billing\License\License;
 use Hyvor\Internal\Billing\License\Plan\Plan;
 use Hyvor\Internal\InternalApi\ComponentType;
 
+/**
+ * @deprecated
+ */
 class ActiveSubscription
 {
 
