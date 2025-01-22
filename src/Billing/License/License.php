@@ -6,7 +6,9 @@ use Hyvor\Internal\Util\Transfer\Serializable;
 use Illuminate\Support\Facades\Log;
 
 /**
+ * Add license parameters in the constructor.
  * When creating a license, set the limits to that of the trial license.
+ * ONLY USE int and bool types in the constructor.
  */
 abstract class License
 {
