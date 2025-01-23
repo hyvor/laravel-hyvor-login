@@ -40,9 +40,11 @@ return [
 
         /**
          * Login provider to use
-         * 
+         *
          * - hyvor: Hyvor API (default, requires hyvor.com self-hosted)
          * - fake: Fake login (for testing)
+         *
+         * Using env is deprecated see 'Local Development' in README.md
          */
         'provider' => env('AUTH_PROVIDER', 'fake'),
 

@@ -10,17 +10,14 @@ class BillingFake extends Billing
 
     public function __construct(
         /**
-         * @param License|(callable(int $userId, ?int $blogId, ComponentType $component) : License)|null $license
-         * null for default license
-         * License to return a custom license
-         * Closure to return a custom license dynamically
+         * @param License|(callable(int $userId, ?int $resouceId, ComponentType $component) : ?License)|null $license
          */
         private readonly mixed $license = null
     )
     {
     }
 
-    public function subscriptionIntent(int $userId, float $monthlyPrice, bool $isAnnual, string $planName, ?ComponentType $component = null): array
+    public function subscriptionIntent(int $userId, string $planName, bool $isAnnual, ?ComponentType $component = null): array
     {
         return [
             'token' => '',
@@ -39,8 +36,7 @@ class BillingFake extends Billing
         }
 
         if ($this->license === null) {
-            // default license with trial defaults
-            return new ($component->license());
+            return null;
         }
 
         return ($this->license)($userId, $resourceId, $component);

@@ -29,23 +29,14 @@ This library connects with the HYVOR Auth API to authenticate users. It supports
 
 ### Configuration
 
-The following environment variables are supported. See `config.php` for configuration options. Environment variables should be set in the `.env` file.
+The following environment variables are supported. See `config.php` for configuration options. Environment variables
+should be set in the `.env` file.
 
 <table>
     <tr>
         <td>ENV</td>
         <td>Description</td>
         <td>Default</td>
-    </tr>
-    <tr>
-        <td><code>AUTH_PROVIDER</code></td>
-        <td>The authentication provider. One of <code>hyvor</code> or <code>fake</code>.</td>
-        <td><code>fake</code></td>
-    </tr>
-    <tr>
-        <td colspan="3" style="text-align:center">
-            <code>hyvor</code> provider
-        </td>
     </tr>
     <tr>
         <td><code>AUTH_HYVOR_URL</code></td>
@@ -146,7 +137,8 @@ $signupUrl = Auth::signup();
 $logoutUrl = Auth::logout();
 ```
 
-By default, the user will be redirected to the current page after login or logout. You may also set the `redirect` parameter to redirect the user to a specific page after login or logout:
+By default, the user will be redirected to the current page after login or logout. You may also set the `redirect`
+parameter to redirect the user to a specific page after login or logout:
 
 ```php
 use Hyvor\Internal\Auth\Auth;
@@ -168,7 +160,9 @@ All endpoints support a `redirect` parameter to redirect the user to a specific 
 
 ### Testing
 
-In testing, the provider is always set to `fake`. The `FakeProvider` always generate dummy data for all requested ids, emails, and usernames. This is useful for testing. You may also set a database of users for the `FakeProvider` to return specific data for specific users as follows:
+In testing, the provider is always set to `fake`. The `FakeProvider` always generate dummy data for all requested ids,
+emails, and usernames. This is useful for testing. You may also set a database of users for the `FakeProvider` to return
+specific data for specific users as follows:
 
 ```php
 use Hyvor\Internal\Auth\Providers\Fake\FakeProvider;
@@ -194,12 +188,15 @@ it('adds names to the email', function() {
 - `FakeProvider::databaseAdd($user)` - adds a user to the database.
 - `FakeProvider::databaseClear()` - clears the database. This should be called after each test case (tearDown).
 
-When a database is set, the `FakeProvider` will return the user data from that database only. This is useful for testing the following scenarios:
+When a database is set, the `FakeProvider` will return the user data from that database only. This is useful for testing
+the following scenarios:
 
 - When a user is not found (set an empty database).
 - When a user's specific details are needed (e.g. name, email, etc.) as in the above example.
 
-In most other cases, you should be able to use the Fake provider without setting a database. Because it automatically generates dummy data for all users, you do not need to seed a database before each test case. However, note that user's data will be different for each test case.
+In most other cases, you should be able to use the Fake provider without setting a database. Because it automatically
+generates dummy data for all users, you do not need to seed a database before each test case. However, note that user's
+data will be different for each test case.
 
 ## Billing
 
@@ -244,7 +241,9 @@ If no license was found, `null` is returned.
 
 ## Resources
 
-When a user creates a resource in the component (ex: a blog in HB), it should call `Resource::register()` within a transaction to register that resource in the core. Core will start the trial for the user if that's the first resource of the user in that component.
+When a user creates a resource in the component (ex: a blog in HB), it should call `Resource::register()` within a
+transaction to register that resource in the core. Core will start the trial for the user if that's the first resource
+of the user in that component.
 
 ```php
 use Hyvor\Internal\Billing\Resource;
@@ -262,6 +261,52 @@ DB::transaction(function() {
 });
 ```
 
+## Local Development
+
+To ease local development, this package is configured to mock Auth and Billing services so that you can develop without
+running the core. This feature is enabled by the `src/InternalFake.php` file, which has the following methods:
+
+```php
+class InternalFake
+{
+
+    public static bool $ENABLED = true;
+   
+    public function user(): ?AuthUser
+    {
+        return FakeProvider::fakeLoginUser([
+            'id' => 1,
+            'name' => 'Alex Dornan',
+            'username' => 'alex',
+            'email' => 'alex@hyvor.com',
+        ]);
+    }
+
+    public function license(int $userId, ?int $resourceId, ComponentType $component): ?License
+    {
+        $licenseClass = $component->license();
+        return new $licenseClass; // trial defaults
+    }
+
+}
+```
+
+If you need to customize the fake data,
+
+- You can edit the `InternalFake` class.
+- (recommended) You can add a `src/InternalFakeExtended.php` file and extend the `InternalFake` class. This file is
+  git-ignored, so
+  you can add your own customizations here without affecting the internal package.
+
+```php
+namespace Hyvor\Internal;
+
+class InternalFakeExtended extends InternalFake
+{
+    // override methods here
+}
+```
+
 ## HTTP
 
 This library provides a few helpers for handling HTTP requests.
@@ -270,7 +315,9 @@ This library provides a few helpers for handling HTTP requests.
 
 #### HttpException
 
-Use `Hyvor\Internal\Http\Exceptions\HttpException` to throw an HTTP exception. This is, in most cases, this error will be sent to the client in the JSON response. Therefore, only use this in middleware and controllers (never in domains). Never share sensitive information in the message.
+Use `Hyvor\Internal\Http\Exceptions\HttpException` to throw an HTTP exception. This is, in most cases, this error will
+be sent to the client in the JSON response. Therefore, only use this in middleware and controllers (never in domains).
+Never share sensitive information in the message.
 
 ```php
 use Hyvor\Internal\Http\Exceptions\HttpException;
@@ -290,7 +337,8 @@ use Hyvor\Internal\Http\Middleware\AuthMiddleware;
 Route::get()->middleware(AuthMiddleware::class);
 ```
 
-If the user is not logged in, an `HttpException` is thrown with status code 401. If the user is logged in, an `AccessAuthUser` object (extends `AuthUser`) is added to the service container, which can be used as follows:
+If the user is not logged in, an `HttpException` is thrown with status code 401. If the user is logged in, an
+`AccessAuthUser` object (extends `AuthUser`) is added to the service container, which can be used as follows:
 
 ```php
 use Hyvor\Internal\Http\Middleware\AccessAuthUser;
@@ -320,7 +368,8 @@ Here's a list of routes added by this library:
 
 ### HasUser Trait
 
-You may add the `Hyvor\Internal\Auth\HasUser` trait to any model to add a `user()` method to it. This method returns the `AuthUser` object, using the `user_id` column of the model.
+You may add the `Hyvor\Internal\Auth\HasUser` trait to any model to add a `user()` method to it. This method returns the
+`AuthUser` object, using the `user_id` column of the model.
 
 ```php
 class Post extends Model
@@ -331,17 +380,24 @@ class Post extends Model
 
 ## Internationalization
 
-This library provides some helpers to handle internationalization. Most of the time, strings are used in the front-end in HYVOR apps, but for some cases like emails, you may need to translate strings in the back-end. Similar to our [Design System](https://github.com/hyvor/design), we use the [ICU message format](https://unicode-org.github.io/icu/userguide/format_parse/messages/). Therefore, you can share the same translations between the front-end and back-end.
+This library provides some helpers to handle internationalization. Most of the time, strings are used in the front-end
+in HYVOR apps, but for some cases like emails, you may need to translate strings in the back-end. Similar to
+our [Design System](https://github.com/hyvor/design), we use
+the [ICU message format](https://unicode-org.github.io/icu/userguide/format_parse/messages/). Therefore, you can share
+the same translations between the front-end and back-end.
 
-All JSON translation files should be places in a directory, which is set in the config file. The default directory is `resources/lang`. The file name should be the language code (e.g. `en-US.json`). The file should be a JSON object with keys as the message IDs and values as the translations. Nested keys are also supported. The locales are loaded from the files in the directory.
+All JSON translation files should be places in a directory, which is set in the config file. The default directory is
+`resources/lang`. The file name should be the language code (e.g. `en-US.json`). The file should be a JSON object with
+keys as the message IDs and values as the translations. Nested keys are also supported. The locales are loaded from the
+files in the directory.
 
 ```json
 {
-  "welcome": "Welcome to HYVOR",
-  "email": "Your email is {email}.",
-  "signup": {
-    "title": "Sign Up"
-  }
+    "welcome": "Welcome to HYVOR",
+    "email": "Your email is {email}.",
+    "signup": {
+        "title": "Sign Up"
+    }
 }
 ```
 
@@ -389,7 +445,3 @@ $i18n->getAvailableLocales(); // ['en-US', 'fr-FR', 'es', ...]
 $i18n->getLocaleStrings('en-US'); // returns the strings from the JSON file as an array
 $i18n->getDefaultLocaleStrings(); // strings of the default locale
 ```
-
-## Local Development
-
-To ease local development, this package is configured to mock Auth and Billing services so that...

@@ -23,7 +23,7 @@ class FakeProvider implements ProviderInterface
      */
     public static ?Collection $DATABASE = null;
 
-    public function check() : false|AuthUser
+    public function check(): false|AuthUser
     {
         if ($this->getFakeUserId()) {
             return $this->fakeLoginUser();
@@ -31,15 +31,17 @@ class FakeProvider implements ProviderInterface
         return false;
     }
 
-    public function login(?string $redirect = null) : RedirectResponse|Redirector
+    public function login(?string $redirect = null): RedirectResponse|Redirector
     {
         return redirect();
     }
-    public function signup(?string $redirect = null) : RedirectResponse|Redirector
+
+    public function signup(?string $redirect = null): RedirectResponse|Redirector
     {
         return redirect();
     }
-    public function logout(?string $redirect = null) : RedirectResponse|Redirector
+
+    public function logout(?string $redirect = null): RedirectResponse|Redirector
     {
         return redirect();
     }
@@ -52,7 +54,8 @@ class FakeProvider implements ProviderInterface
     {
         return $this->multiSearch('id', $ids);
     }
-    public function fromId(int $id) : ?AuthUser
+
+    public function fromId(int $id): ?AuthUser
     {
         return $this->singleSearch('id', $id);
     }
@@ -65,7 +68,8 @@ class FakeProvider implements ProviderInterface
     {
         return $this->multiSearch('email', $emails);
     }
-    public function fromEmail(string $email) : ?AuthUser
+
+    public function fromEmail(string $email): ?AuthUser
     {
         return $this->singleSearch('email', $email);
     }
@@ -78,12 +82,13 @@ class FakeProvider implements ProviderInterface
     {
         return $this->multiSearch('username', $usernames);
     }
-    public function fromUsername(string $username) : ?AuthUser
+
+    public function fromUsername(string $username): ?AuthUser
     {
         return $this->singleSearch('username', $username);
     }
 
-    public static function getFakeUserId() : ?int
+    public static function getFakeUserId(): ?int
     {
         $id = config('internal.auth.fake.user_id');
         if (is_int($id)) {
@@ -95,11 +100,17 @@ class FakeProvider implements ProviderInterface
     /**
      * @param AuthUserArrayPartial $fill
      */
-    public static function fakeLoginUser(array $fill = []) : AuthUser
+    public function fakeLoginUser(array $fill = []): AuthUser
     {
         $faker = Factory::create();
+
+        $fakeId = self::getFakeUserId();
+        if (self::$DATABASE && $fakeId && $this->singleSearch('id', $fakeId)) {
+            return $this->singleSearch('id', $fakeId);
+        }
+
         return AuthUser::fromArray(array_merge([
-            'id' => self::getFakeUserId() ?? $faker->randomNumber(),
+            'id' => $fakeId ?? $faker->randomNumber(),
             'username' => $faker->name(),
             'name' => $faker->name(),
             'email' => $faker->email(),
@@ -111,7 +122,7 @@ class FakeProvider implements ProviderInterface
     /**
      * @param 'id' | 'username' | 'email' $key
      */
-    private function singleSearch(string $key, string|int $value) : ?AuthUser
+    private function singleSearch(string $key, string|int $value): ?AuthUser
     {
         if (self::$DATABASE !== null) {
             return self::$DATABASE->firstWhere($key, $value);
@@ -126,7 +137,7 @@ class FakeProvider implements ProviderInterface
      * @param iterable<T> $values
      * @return Collection<T, AuthUser>
      */
-    private function multiSearch(string $key, iterable $values) : Collection
+    private function multiSearch(string $key, iterable $values): Collection
     {
         if (self::$DATABASE !== null) {
             return self::$DATABASE->whereIn($key, $values)
@@ -145,7 +156,7 @@ class FakeProvider implements ProviderInterface
     /**
      * @param iterable<int, AuthUser|AuthUserArrayPartial> $users
      */
-    public static function databaseSet(iterable $users = []) : void
+    public static function databaseSet(iterable $users = []): void
     {
         self::$DATABASE = collect($users)
             ->map(function ($user) {
@@ -159,12 +170,12 @@ class FakeProvider implements ProviderInterface
     /**
      * @return Collection<int, AuthUser>|null
      */
-    public static function databaseGet() : ?Collection
+    public static function databaseGet(): ?Collection
     {
         return self::$DATABASE;
     }
 
-    public static function databaseClear() : void
+    public static function databaseClear(): void
     {
         self::$DATABASE = null;
     }
@@ -172,7 +183,7 @@ class FakeProvider implements ProviderInterface
     /**
      * @param AuthUser|AuthUserArrayPartial $user
      */
-    public static function databaseAdd($user) : void
+    public static function databaseAdd($user): void
     {
         if (self::$DATABASE === null) {
             self::$DATABASE = collect([]);
