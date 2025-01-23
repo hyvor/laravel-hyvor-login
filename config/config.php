@@ -88,6 +88,9 @@ return [
 
     ],
 
+    /**
+     * Deprecated don't use
+     */
     'media' => [
 
         'path' => 'api/media',

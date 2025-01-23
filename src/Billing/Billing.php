@@ -30,21 +30,11 @@ class Billing
      */
     public function subscriptionIntent(
         int $userId,
-        float $monthlyPrice,
-        bool $isAnnual,
         string $planName,
+        bool $isAnnual,
         ?ComponentType $component = null,
     ): array {
         $component ??= ComponentType::current();
-
-
-        // validate decimal points
-        if (str_contains((string)$monthlyPrice, '.')) {
-            $decimalPoints = strlen(explode('.', (string)$monthlyPrice)[1]);
-            if ($decimalPoints > 2) {
-                throw new \InvalidArgumentException('Monthly price can have up to 2 decimal points');
-            }
-        }
 
         // this validates the plan name as well
         $plan = $component->plans()->getPlan($planName);
@@ -54,7 +44,6 @@ class Billing
             $plan->version,
             $planName,
             $userId,
-            $monthlyPrice,
             $isAnnual,
         );
 

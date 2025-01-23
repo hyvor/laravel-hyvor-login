@@ -41,11 +41,6 @@ class SubscriptionIntent
         public int $userId,
 
         /**
-         * Monthly price of the subscription
-         */
-        public float $monthlyPrice,
-
-        /**
          * Is this an annual subscription?
          */
         public bool $isAnnual,

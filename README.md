@@ -4,7 +4,6 @@ This package provides the following features for HYVOR applications in Laravel:
 
 - Authentication (with fake provider)
 - HTTP helpers
-- Media route
 - Internationalization
 - Component API
 - Billing API
@@ -26,11 +25,7 @@ includes:
 
 ## Auth
 
-This library provides a unified authentication system for the following providers:
-
-- HYVOR
-- OpenID Connect
-- Fake (for testing)
+This library connects with the HYVOR Auth API to authenticate users. It supports the following providers:
 
 ### Configuration
 
@@ -44,7 +39,7 @@ The following environment variables are supported. See `config.php` for configur
     </tr>
     <tr>
         <td><code>AUTH_PROVIDER</code></td>
-        <td>The authentication provider. One of <code>hyvor</code>, <code>oidc</code>, or <code>fake</code>.</td>
+        <td>The authentication provider. One of <code>hyvor</code> or <code>fake</code>.</td>
         <td><code>fake</code></td>
     </tr>
     <tr>
@@ -85,7 +80,6 @@ The `AuthUser` class is used to represent the user. It has the following propert
 - `?string $location` - the user's location
 - `?string $bio` - the user's bio
 - `?string $website_url` - the user's website URL
-- `?string $sub` - the user's sub (only OpenID Connect)
 
 ```php
 <?php
@@ -106,8 +100,6 @@ AuthUser::fromArray([
 ```
 
 ### Fetching Data
-
-Fetching user data should always be done using API calls rather than using SQL joins in application-level queries, even if OpenID Connect is used. This is because HYVOR user data is always stored in an external database.
 
 Use the following methods to fetch data by user ID, email, or username:
 
@@ -166,7 +158,7 @@ $loginUrl = Auth::login('https://talk.hyvor.com/console');
 
 #### HTTP Redirects
 
-The following routes are added to the application for HTTP redirects:
+The following routes are automatically added to the application for HTTP redirects:
 
 - `/api/auth/login`
 - `/api/auth/signup`
@@ -208,6 +200,67 @@ When a database is set, the `FakeProvider` will return the user data from that d
 - When a user's specific details are needed (e.g. name, email, etc.) as in the above example.
 
 In most other cases, you should be able to use the Fake provider without setting a database. Because it automatically generates dummy data for all users, you do not need to seed a database before each test case. However, note that user's data will be different for each test case.
+
+## Billing
+
+License and plan classes should be added to the internal library.
+
+### Create Subscription Intent
+
+Create a new subscription intent with the latest plan version.
+
+```php
+use Hyvor\Internal\Billing\Billing;
+
+$data = Billing::subscriptionIntent(
+    $userId,
+    $planName,
+    $isAnnual,
+)
+
+$data['urlNew']; // redirect here to create new subscription
+$data['urlChange']; // redirect here to change to this plan
+```
+
+### Get License
+
+You would usually get the license to check if a user/resource has access to a certain feature.
+
+```php
+use Hyvor\Internal\Billing\Billing;
+
+// assuming Hyvor Blogs
+$license = Billing::license($userId, $blogId);
+```
+
+This function gets the license in the following order:
+
+- Custom resource license, if set
+- Custom user license, if set
+- Subscription license based on the plan, if set
+- Trial license, if within the trial
+
+If no license was found, `null` is returned.
+
+## Resources
+
+When a user creates a resource in the component (ex: a blog in HB), it should call `Resource::register()` within a transaction to register that resource in the core. Core will start the trial for the user if that's the first resource of the user in that component.
+
+```php
+use Hyvor\Internal\Billing\Resource;
+use Illuminate\Support\Facades\DB;
+
+DB::transaction(function() {
+    
+    $blog = $this->createBlog($this->userId);
+
+    Resource::register(
+        $this->userId,
+        $blog->id
+    );
+    
+});
+```
 
 ## HTTP
 
@@ -337,6 +390,6 @@ $i18n->getLocaleStrings('en-US'); // returns the strings from the JSON file as a
 $i18n->getDefaultLocaleStrings(); // strings of the default locale
 ```
 
-## Media
+## Local Development
 
-This library adds the `/api/media/{path}` route to your app. This route will serve/stream files from the default storage disk. This makes it easy to serve the files from the same domain.
+To ease local development, this package is configured to mock Auth and Billing services so that...
