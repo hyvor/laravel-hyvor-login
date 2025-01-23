@@ -6,7 +6,7 @@ use Hyvor\Internal\Billing\License\DerivedFrom;
 use Hyvor\Internal\Billing\License\License;
 
 /**
- * @template T of License
+ * @template T of License = License
  * Create a class extending this class to abstract usage
  * Ex: storage in BLOGS
  */
@@ -26,9 +26,8 @@ abstract class UsageAbstract
      */
     abstract public function getLicenseType(): string;
     abstract public function getKey(): string;
-
-    abstract public function usageOfResource(int $resourceId): int;
     abstract public function usageOfUser(int $userId): int;
+    abstract public function usageOfResource(int $resourceId): int;
 
     /**
      * @param T $license

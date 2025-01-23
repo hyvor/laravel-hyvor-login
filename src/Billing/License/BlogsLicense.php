@@ -13,29 +13,29 @@ class BlogsLicense extends License
         public int $users = 2,
 
         /**
-         * Storage in GB. Used when storing media files.
+         * Storage in bytes. Used when storing media files.
          */
-        public int $storageGb = 1,
+        public int $storage = 1_000_000_000,
 
         /**
-         * GPT Tokens per month in thousands.
+         * GPT Tokens per month.
          */
-        public int $aiTokensK = 1,
+        public int $aiTokens = 1000,
 
         /**
          * DeepL characters per month in thousands.
          */
-        public int $autoTranslationsCharsK = 1,
+        public int $autoTranslationsChars = 1000,
 
         /**
          * Hyvor Talk credits per month in thousands.
          */
-        public int $talkCreditsK = 0,
+        public int $talkCredits = 0,
 
         /**
          * Hyvor Post Emails per month in thousands.
          */
-        public int $postEmailsK = 0,
+        public int $postEmails = 0,
 
         /**
          * Link and SEO analyses.

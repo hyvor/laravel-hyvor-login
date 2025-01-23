@@ -7,6 +7,8 @@ use Hyvor\Internal\Billing\License\BlogsLicense;
 class BlogsPlan extends PlanAbstract
 {
 
+    const int GB = 10 ** 9;
+
     public function config(): void
     {
 
@@ -18,11 +20,11 @@ class BlogsPlan extends PlanAbstract
                 9,
                 new BlogsLicense(
                     users: 2,
-                    storageGb: 1,
-                    aiTokensK: 0,
-                    autoTranslationsCharsK: 0,
-                    talkCreditsK: 0,
-                    postEmailsK: 0,
+                    storage: 1 * self::GB,
+                    aiTokens: 0,
+                    autoTranslationsChars: 0,
+                    talkCredits: 0,
+                    postEmails: 0,
                     analyses: false,
                     noBranding: false,
                 )
@@ -33,11 +35,11 @@ class BlogsPlan extends PlanAbstract
                 19,
                 new BlogsLicense(
                     users: 5,
-                    storageGb: 40,
-                    aiTokensK: 100,
-                    autoTranslationsCharsK: 100,
-                    talkCreditsK: 100,
-                    postEmailsK: 25,
+                    storage: 40 * self::GB,
+                    aiTokens: 100_000,
+                    autoTranslationsChars: 100_000,
+                    talkCredits: 100_000,
+                    postEmails: 25_000,
                     analyses: true,
                     noBranding: true,
                 )
@@ -53,11 +55,11 @@ class BlogsPlan extends PlanAbstract
                 12,
                 new BlogsLicense(
                     users: 2,
-                    storageGb: 2,
-                    aiTokensK: 0,
-                    autoTranslationsCharsK: 0,
-                    talkCreditsK: 0,
-                    postEmailsK: 0,
+                    storage: 2 * self::GB,
+                    aiTokens: 0,
+                    autoTranslationsChars: 0,
+                    talkCredits: 0,
+                    postEmails: 0,
                     analyses: false,
                     noBranding: false,
                 )
@@ -68,11 +70,11 @@ class BlogsPlan extends PlanAbstract
                 40,
                 new BlogsLicense(
                     users: 10,
-                    storageGb: 100,
-                    aiTokensK: 100,
-                    autoTranslationsCharsK: 100,
-                    talkCreditsK: 100,
-                    postEmailsK: 25,
+                    storage: 100 * self::GB,
+                    aiTokens: 100_000,
+                    autoTranslationsChars: 100_000,
+                    talkCredits: 100_000,
+                    postEmails: 25_000,
                     analyses: true,
                     noBranding: true,
                 )
@@ -83,11 +85,11 @@ class BlogsPlan extends PlanAbstract
                 125,
                 new BlogsLicense(
                     users: 50,
-                    storageGb: 500,
-                    aiTokensK: 1000,
-                    autoTranslationsCharsK: 500,
-                    talkCreditsK: 250,
-                    postEmailsK: 100,
+                    storage: 500 * self::GB,
+                    aiTokens: 1_000_000,
+                    autoTranslationsChars: 500_000,
+                    talkCredits: 250_000,
+                    postEmails: 100_000,
                     analyses: true,
                     noBranding: true,
                 )
