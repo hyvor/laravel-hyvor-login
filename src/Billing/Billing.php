@@ -45,6 +45,7 @@ class Billing
             $plan->version,
             $planName,
             $userId,
+            $plan->monthlyPrice,
             $isAnnual,
         );
 

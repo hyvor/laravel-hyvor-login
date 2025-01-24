@@ -25,7 +25,7 @@ class SubscriptionIntent
         /**
          * Version of the subscription plan as defined in each component's plan class.
          */
-        public int $planVersion,
+        public int           $planVersion,
 
         /**
          * Name of the subscription plan.
@@ -33,18 +33,25 @@ class SubscriptionIntent
          * Ex: `premium_1` in talk
          * Ex: `premium` in blogs
          */
-        public string $plan,
+        public string        $plan,
 
         /**
          * User requesting the subscription
          */
-        public int $userId,
+        public int           $userId,
+
+        /**
+         * Monthly price of the subscription
+         */
+        public float         $monthlyPrice,
 
         /**
          * Is this an annual subscription?
          */
-        public bool $isAnnual,
-    ) {}
+        public bool          $isAnnual,
+    )
+    {
+    }
 
 
 }
