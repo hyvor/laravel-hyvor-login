@@ -39,7 +39,22 @@ class BlogsPlan extends PlanAbstract
                     aiTokens: 100_000,
                     autoTranslationsChars: 100_000,
                     talkCredits: 100_000,
-                    postEmails: 25_000,
+                    postEmails: 0,
+                    analyses: true,
+                    noBranding: true,
+                )
+            );
+
+            $this->plan(
+                'premium',
+                49,
+                new BlogsLicense(
+                    users: 15,
+                    storage: 250 * self::GB,
+                    aiTokens: 1_000_000,
+                    autoTranslationsChars: 300_000,
+                    talkCredits: 250_000,
+                    postEmails: 0,
                     analyses: true,
                     noBranding: true,
                 )

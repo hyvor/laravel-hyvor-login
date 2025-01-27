@@ -17,15 +17,6 @@ class BillingFake extends Billing
     {
     }
 
-    public function subscriptionIntent(int $userId, string $planName, bool $isAnnual, ?ComponentType $component = null): array
-    {
-        return [
-            'token' => '',
-            'urlNew' => '',
-            'urlChange' => '',
-        ];
-    }
-
     public function license(int $userId, ?int $resourceId, ?ComponentType $component = null): ?License
     {
 
