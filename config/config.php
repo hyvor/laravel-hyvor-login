@@ -16,6 +16,12 @@ return [
     'instance' => env('HYVOR_INSTANCE', 'https://hyvor.com'),
 
     /**
+     * Private instance URL
+     * To communicate in a private network
+     */
+    'private_instance' => env('HYVOR_PRIVATE_INSTANCE'),
+
+    /**
      * Which component is this?
      * See `src/InternalApi/ComponentType.php` for available components
      *
@@ -34,9 +40,11 @@ return [
 
         /**
          * Login provider to use
-         * 
+         *
          * - hyvor: Hyvor API (default, requires hyvor.com self-hosted)
          * - fake: Fake login (for testing)
+         *
+         * Using env is deprecated see 'Local Development' in README.md
          */
         'provider' => env('AUTH_PROVIDER', 'fake'),
 
@@ -82,6 +90,9 @@ return [
 
     ],
 
+    /**
+     * Deprecated don't use
+     */
     'media' => [
 
         'path' => 'api/media',

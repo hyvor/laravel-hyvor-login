@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Storage;
 use League\Flysystem\UnableToCheckExistence;
 use League\Flysystem\UnableToRetrieveMetadata;
 
+/**
+ * @deprecated
+ */
 class MediaController
 {
 

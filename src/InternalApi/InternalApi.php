@@ -4,6 +4,8 @@ namespace Hyvor\Internal\InternalApi;
 
 use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 
@@ -36,7 +38,8 @@ class InternalApi
         $methodFunction = strtolower($method->value);
 
         $endpoint = ltrim($endpoint, '/');
-        $url = ComponentType::getUrlOf($to) . '/api/internal/' . $endpoint;
+        $componentUrl = InstanceUrl::createPrivate()->componentUrl($to);
+        $url = $componentUrl . '/api/internal/' . $endpoint;
 
         $message = self::messageFromData($data);
 
@@ -86,6 +89,16 @@ class InternalApi
 
         return Crypt::encryptString($json);
 
+    }
+
+    /**
+     * Helper to get the requesting component from a request
+     */
+    public static function getRequestingComponent(Request $request) : ComponentType
+    {
+        $from = $request->header('X-Internal-Api-From');
+        assert(is_string($from));
+        return ComponentType::from($from);
     }
 
 }

@@ -6,44 +6,31 @@ use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\InternalApi\InternalApi;
 use Hyvor\Internal\InternalApi\InternalApiMethod;
 use Illuminate\Support\Facades\App;
-use Illuminate\Testing\TestResponse;
 
-/**
- * Use this class to test the internal API calls of a component
- */
-class InternalApiTesting
+trait CallsInternalApi
 {
 
     /**
-     * @deprecated Use CallsInternalAPI trait instead
      * @param array<mixed> $data
      * @param InternalApiMethod|'GET'|'POST' $method
      */
-    public static function call(
+    public function internalApi(
         InternalApiMethod|string $method,
-        string $endpoint,
-        array $data = [],
-        ?ComponentType $from = null,
-    ) : TestResponse
+        string                   $endpoint,
+        array                    $data = [],
+        ?ComponentType           $from = null,
+    )
     {
 
-        if (!App::environment('testing')) {
-            throw new \Exception('This method can only be called in the testing environment');
-        }
+        assert(App::environment('testing'), 'This method can only be called in the testing environment');
 
         if (is_string($method)) {
             $method = InternalApiMethod::from($method);
         }
 
-        if (!function_exists('test')) {
-            throw new \Exception('test() function of PestPHP not found');
-        }
-
-        /** @var mixed $test */
-        $test = test();
         $endpoint = ltrim($endpoint, '/');
 
-        return $test->call(
+        return $this->call(
             $method->value,
             '/api/internal/' . $endpoint,
             [
@@ -56,7 +43,7 @@ class InternalApiTesting
                 'HTTP_X-Internal-Api-To' => ComponentType::current()->value,
             ]
         );
-        
+
     }
 
 }
