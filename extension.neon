@@ -1,8 +1,8 @@
-services:
-	-
-		class: Hyvor\Internal\PHPStan\BillingGetSubscriptionReturnTypeExtension
-		tags:
-			- phpstan.broker.dynamicStaticMethodReturnTypeExtension
+#services:
+#	-
+#		class: Hyvor\Internal\PHPStan\BillingGetSubscriptionReturnTypeExtension
+#		tags:
+#			- phpstan.broker.dynamicStaticMethodReturnTypeExtension
 
 rules:
     - Hyvor\Internal\PHPStan\LicenseIntAndBoolOnlyRule

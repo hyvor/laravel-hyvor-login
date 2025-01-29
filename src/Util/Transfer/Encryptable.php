@@ -1,17 +1,18 @@
 <?php
 
-namespace Hyvor\Internal\Util\Crypt;
+namespace Hyvor\Internal\Util\Transfer;
 
 use Illuminate\Support\Facades\Crypt;
 
 /**
  * This class is used for encrypting objects within the Hyvor\Internal namespace.
  * It is safe since the objects are shared between components
+ * Safe to use on public facing objects
  */
 trait Encryptable
 {
 
-    public function encrypt() : string
+    public function encrypt(): string
     {
         $className = get_class($this);
 
@@ -22,20 +23,12 @@ trait Encryptable
         return Crypt::encrypt($this);
     }
 
-    public static function decrypt(string $token) : static
+    public static function decrypt(string $token): static
     {
         $object = Crypt::decrypt($token);
 
-        if (!is_object($object)) {
-            throw new \InvalidArgumentException('Invalid token');
-        }
-
-        $className = get_class($object);
-        $classNameCurrent = get_called_class();
-
-        if ($className !== $classNameCurrent) {
-            throw new \InvalidArgumentException('Invalid token: ' . $className . ' !== ' . $classNameCurrent);
-        }
+        assert(is_object($object), 'Invalid token: expected object');
+        assert($object instanceof static, 'Invalid token: expected static');
 
         return $object;
     }

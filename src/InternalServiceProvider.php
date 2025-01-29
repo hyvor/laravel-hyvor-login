@@ -5,7 +5,6 @@ namespace Hyvor\Internal;
 use Hyvor\Internal\Auth\Providers\Fake\FakeProvider;
 use Hyvor\Internal\Billing\Billing;
 use Hyvor\Internal\InternalApi\ComponentType;
-use Hyvor\Internal\Laravel\Database\Command\DatabaseNukeCommand;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,10 +28,6 @@ class InternalServiceProvider extends ServiceProvider
         ) {
             $this->fake();
         }
-
-        $this->commands([
-            DatabaseNukeCommand::class
-        ]);
     }
 
     private function fake(): void

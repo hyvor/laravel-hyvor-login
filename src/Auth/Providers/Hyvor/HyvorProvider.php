@@ -41,9 +41,9 @@ class HyvorProvider implements ProviderInterface
     }
 
     private function redirectTo(
-        string $page,
-        string $redirectPage = null
-    ) : RedirectResponse|Redirector
+        string  $page,
+        ?string $redirectPage = null
+    ): RedirectResponse
     {
         $pos = strpos($page, '?');
         $placeholder = $pos === false ? '?' : '&';
@@ -93,7 +93,7 @@ class HyvorProvider implements ProviderInterface
     private function callApiGetUsers(string $field, iterable $values)
     {
         $response = HyvorApiCaller::call('/users/from/' . $field, [
-            $field => implode(',', (array) $values)
+            $field => implode(',', (array)$values)
         ]);
 
         if ($response->successful()) {

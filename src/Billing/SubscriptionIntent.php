@@ -3,7 +3,7 @@
 namespace Hyvor\Internal\Billing;
 
 use Hyvor\Internal\InternalApi\ComponentType;
-use Hyvor\Internal\Util\Crypt\Encryptable;
+use Hyvor\Internal\Util\Transfer\Encryptable;
 
 /**
  * This is the object for requesting a new subscription
