@@ -3,13 +3,16 @@
 namespace Hyvor\Internal\Tests\Unit\Util;
 
 use Hyvor\Internal\Util\Array\Arrayable;
+use PHPUnit\Framework\TestCase;
 
-enum UserType : string {
+enum UserType: string
+{
     case ADMIN = 'admin';
     case USER = 'user';
 }
 
-class Name {
+class Name
+{
     use Arrayable;
 
     public int $id;
@@ -18,25 +21,31 @@ class Name {
 
 }
 
-it('from array', function() {
+class ArrayableTest extends TestCase
+{
 
-    $name = Name::fromArray([
-        'id' => 1,
-        'name' => 'John Doe',
-        'type' => 'admin'
-    ]);
+    public function testFromArray(): void
+    {
+        $name = Name::fromArray([
+            'id' => 1,
+            'name' => 'John Doe',
+            'type' => 'admin'
+        ]);
 
-    expect($name->id)->toBe(1);
-    expect($name->name)->toBe('John Doe');
-    expect($name->type)->toBe(UserType::ADMIN);
+        $this->assertEquals(1, $name->id);
+        $this->assertEquals('John Doe', $name->name);
+        $this->assertEquals(UserType::ADMIN, $name->type);
+    }
 
-});
+    public function testFromArrayThrowsError(): void
+    {
+        $this->expectException(\Error::class);
+        $this->expectExceptionMessage('Missing data for type');
 
-it('throws an error on missing data', function() {
+        $name = Name::fromArray([
+            'id' => 1,
+            'name' => 'John Doe'
+        ]);
+    }
 
-    $name = Name::fromArray([
-        'id' => 1,
-        'name' => 'John Doe'
-    ]);
-
-})->throws(\Error::class, 'Missing data for type');
+}
