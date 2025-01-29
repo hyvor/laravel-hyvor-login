@@ -51,17 +51,6 @@ return [
         'routes_domain' => '{any}',
 
         /**
-         * Login provider to use
-         *
-         * - hyvor: Hyvor API (default, requires hyvor.com self-hosted)
-         * - fake: Fake login (for testing)
-         *
-         * Using env is deprecated see 'Local Development' in README.md
-         * Use HYVOR_FAKE instead
-         */
-        'provider' => env('AUTH_PROVIDER', 'fake'),
-
-        /**
          * Hyvor Login settings
          */
         'hyvor' => [
@@ -79,13 +68,6 @@ return [
              */
             'private_url' => env('AUTH_HYVOR_PRIVATE_URL'),
         ],
-
-        'fake' => [
-            /**
-             * Fake user ID
-             */
-            'user_id' => env('AUTH_FAKE_USER_ID', 1),
-        ]
 
     ],
 

@@ -12,29 +12,15 @@ class Billing
 {
 
     /**
-     * @param License|(callable(int $userId, ?int $blogId, ComponentType $component) : ?License)|null $license
-     * @return void
-     */
-    public static function fake(
-        null|License|callable $license = null,
-    ): void
-    {
-        app()->bind(Billing::class, function () use ($license) {
-            return new BillingFake($license);
-        });
-    }
-
-    /**
      * @return array{token: string, urlNew: string, urlChange: string}
      * @see SubscriptionIntent
      */
     public function subscriptionIntent(
-        int            $userId,
-        string         $planName,
-        bool           $isAnnual,
+        int $userId,
+        string $planName,
+        bool $isAnnual,
         ?ComponentType $component = null,
-    ): array
-    {
+    ): array {
         $component ??= ComponentType::current();
 
         // this validates the plan name as well
@@ -64,12 +50,10 @@ class Billing
      * Get the license of a user.
      */
     public function license(
-        int            $userId,
-        ?int           $resourceId,
+        int $userId,
+        ?int $resourceId,
         ?ComponentType $component = null,
-    ): ?License
-    {
-
+    ): ?License {
         $component ??= ComponentType::current();
 
         $response = InternalApi::call(
@@ -87,7 +71,6 @@ class Billing
         $licenseClass = $component->license();
 
         return $license ? $licenseClass::unserialize($license) : null;
-
     }
 
 }

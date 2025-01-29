@@ -9,24 +9,24 @@ use Illuminate\Routing\Redirector;
 class Auth
 {
 
-    public static function check() : false|AuthUser
+    public static function check(): false|AuthUser
     {
-        return CurrentProvider::getImplementation()->check();
+        return CurrentProvider::get()->check();
     }
 
-    public static function login(?string $redirect = null) : RedirectResponse|Redirector
+    public static function login(?string $redirect = null): RedirectResponse|Redirector
     {
-        return CurrentProvider::getImplementation()->login($redirect);
+        return CurrentProvider::get()->login($redirect);
     }
 
-    public static function signup(?string $redirect = null) : RedirectResponse|Redirector
+    public static function signup(?string $redirect = null): RedirectResponse|Redirector
     {
-        return CurrentProvider::getImplementation()->signup($redirect);
+        return CurrentProvider::get()->signup($redirect);
     }
 
-    public static function logout(?string $redirect = null) : RedirectResponse|Redirector
+    public static function logout(?string $redirect = null): RedirectResponse|Redirector
     {
-        return CurrentProvider::getImplementation()->logout($redirect);
+        return CurrentProvider::get()->logout($redirect);
     }
 
 }

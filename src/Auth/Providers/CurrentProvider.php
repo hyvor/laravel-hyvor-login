@@ -1,28 +1,23 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Hyvor\Internal\Auth\Providers;
-
-use Hyvor\Internal\Auth\AuthProviderEnum;
-use Hyvor\Internal\Auth\Providers\Fake\FakeProvider;
-use Hyvor\Internal\Auth\Providers\Hyvor\HyvorProvider;
 
 class CurrentProvider
 {
 
-    public static function get() : AuthProviderEnum
+    /**
+     * @param class-string<ProviderInterface> $provider
+     */
+    public static function set(string $provider): void
     {
-        $provider = strval(config('internal.auth.provider'));
-        return AuthProviderEnum::from($provider);
+        app()->bind(ProviderInterface::class, $provider);
     }
 
-    public static function getImplementation() : ProviderInterface
+    public static function get(): ProviderInterface
     {
-        $provider = self::get();
-
-        return match ($provider) {
-            AuthProviderEnum::HYVOR => new HyvorProvider,
-            AuthProviderEnum::FAKE => new FakeProvider
-        };
+        return app(ProviderInterface::class);
     }
 
 }

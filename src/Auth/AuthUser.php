@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Hyvor\Internal\Auth;
 
@@ -45,13 +46,13 @@ class AuthUser
         public ?string $location = null,
         public ?string $bio = null,
         public ?string $website_url = null,
-    )
-    {}
+    ) {
+    }
 
     /**
      * @param AuthUserArray $data
      */
-    public static function fromArray(array $data) : static
+    public static function fromArray(array $data): static
     {
         return new static(
             id: $data['id'],
@@ -72,12 +73,12 @@ class AuthUser
      */
     public static function fromIds(iterable $ids)
     {
-        return CurrentProvider::getImplementation()->fromIds($ids);
+        return CurrentProvider::get()->fromIds($ids);
     }
 
-    public static function fromId(int $id) : ?self
+    public static function fromId(int $id): ?self
     {
-        return CurrentProvider::getImplementation()->fromId($id);
+        return CurrentProvider::get()->fromId($id);
     }
 
     /**
@@ -86,12 +87,12 @@ class AuthUser
      */
     public static function fromUsernames(iterable $usernames)
     {
-        return CurrentProvider::getImplementation()->fromUsernames($usernames);
+        return CurrentProvider::get()->fromUsernames($usernames);
     }
 
-    public static function fromUsername(string $username) : ?self
+    public static function fromUsername(string $username): ?self
     {
-          return CurrentProvider::getImplementation()->fromUsername($username);
+        return CurrentProvider::get()->fromUsername($username);
     }
 
     /**
@@ -100,12 +101,12 @@ class AuthUser
      */
     public static function fromEmails(iterable $emails)
     {
-        return CurrentProvider::getImplementation()->fromEmails($emails);
+        return CurrentProvider::get()->fromEmails($emails);
     }
 
-    public static function fromEmail(string $email) : ?self
+    public static function fromEmail(string $email): ?self
     {
-          return CurrentProvider::getImplementation()->fromEmail($email);
+        return CurrentProvider::get()->fromEmail($email);
     }
 
 }

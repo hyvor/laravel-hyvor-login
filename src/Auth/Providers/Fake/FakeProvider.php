@@ -4,6 +4,7 @@ namespace Hyvor\Internal\Auth\Providers\Fake;
 
 use Faker\Factory;
 use Hyvor\Internal\Auth\AuthUser;
+use Hyvor\Internal\Auth\Providers\CurrentProvider;
 use Hyvor\Internal\Auth\Providers\ProviderInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
@@ -22,6 +23,11 @@ class FakeProvider implements ProviderInterface
      * @var Collection<int, AuthUser>|null
      */
     public static ?Collection $DATABASE = null;
+
+    public static function enable(): void
+    {
+        CurrentProvider::set(FakeProvider::class);
+    }
 
     public function check(): false|AuthUser
     {
