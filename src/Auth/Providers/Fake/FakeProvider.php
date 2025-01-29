@@ -100,7 +100,7 @@ class FakeProvider implements ProviderInterface
     /**
      * @param AuthUserArrayPartial $fill
      */
-    public function fakeLoginUser(array $fill = []): AuthUser
+    private function fakeLoginUser(array $fill = []): AuthUser
     {
         $fakeId = self::getFakeUserId();
         if (self::$DATABASE && $fakeId && $this->singleSearch('id', $fakeId)) {
@@ -201,7 +201,6 @@ class FakeProvider implements ProviderInterface
             'email_relay' => $faker->userName() . '@relay.hyvor.com',
             'picture_url' => 'https://picsum.photos/100/100',
         ], $fill));
-
     }
 
 }

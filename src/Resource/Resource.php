@@ -9,7 +9,7 @@ use Hyvor\Internal\InternalApi\InternalApiMethod;
 class Resource
 {
 
-    public static function register(
+    public function register(
         int $userId,
         int $resourceId
     ): void
@@ -27,7 +27,7 @@ class Resource
 
     }
 
-    public static function delete(int $resourceId): void
+    public function delete(int $resourceId): void
     {
 
         InternalApi::call(

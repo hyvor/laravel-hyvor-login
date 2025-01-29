@@ -23,7 +23,6 @@
     "require-dev": {
         "orchestra/testbench": "^9.0",
         "phpstan/phpstan": "^1.10",
-        "pestphp/pest": "^2.25",
         "phpunit/phpunit": "^10.5"
     },
     "extra": {
@@ -32,11 +31,6 @@
                 "Hyvor\\Internal\\InternalServiceProvider",
                 "Hyvor\\Internal\\Internationalization\\InternationalizationServiceProvider"
             ]
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
         }
     },
     "require": {
