@@ -6,7 +6,6 @@ use Hyvor\Internal\Auth\Providers\Fake\FakeProvider;
 use Hyvor\Internal\Billing\Billing;
 use Hyvor\Internal\Billing\License\BlogsLicense;
 use Hyvor\Internal\InternalApi\ComponentType;
-use Hyvor\Internal\InternalFake;
 use Hyvor\Internal\InternalServiceProvider;
 use Illuminate\Support\Collection;
 
@@ -17,6 +16,7 @@ class FakeTest extends \Orchestra\Testbench\TestCase
     {
 
         config(['app.env' => 'local']);
+        config(['internal.fake' => true]);
 
         $app = $this->app;
         assert($app !== null);
@@ -43,15 +43,11 @@ class FakeTest extends \Orchestra\Testbench\TestCase
 
         config(['app.env' => 'local']);
 
-        InternalFake::$ENABLED = false;
-
         assert($this->app !== null);
         $sp = new InternalServiceProvider($this->app);
         $sp->boot();
 
         $this->assertFalse($this->app->bound('Hyvor\Internal\Billing\Billing'));
-
-        InternalFake::$ENABLED = true; // reset
 
     }
 
@@ -59,6 +55,7 @@ class FakeTest extends \Orchestra\Testbench\TestCase
     {
 
         config(['app.env' => 'local']);
+        config(['internal.fake' => true]);
 
         // adds the extended class
         include 'internalfakextended.php';

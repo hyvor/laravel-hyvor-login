@@ -14,13 +14,19 @@ class InternalServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
 
-        if (App::environment('testing')) {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/testing.php');
+        if (config('internal.auth.routes')) {
+            $this->loadRoutesFrom(__DIR__ . '/routes/auth.php');
         }
 
-        if (config('app.env') === 'local') {
+        if (App::environment('testing')) {
+            $this->loadRoutesFrom(__DIR__ . '/routes/testing.php');
+        }
+
+        if (
+            config('app.env') === 'local' &&
+            config('internal.fake')
+        ) {
             $this->fake();
         }
 
@@ -36,10 +42,6 @@ class InternalServiceProvider extends ServiceProvider
 
         if (class_exists('Hyvor\Internal\InternalFakeExtended')) {
             $class = 'Hyvor\Internal\InternalFakeExtended';
-        }
-
-        if (!$class::$ENABLED) {
-            return;
         }
 
         /** @var class-string<InternalFake> $class */
@@ -61,7 +63,7 @@ class InternalServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'internal');
+        $this->mergeConfigFrom(__DIR__ . '/config.php', 'internal');
     }
 
 }

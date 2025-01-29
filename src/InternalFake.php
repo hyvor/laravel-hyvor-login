@@ -9,8 +9,6 @@ use Hyvor\Internal\InternalApi\ComponentType;
 class InternalFake
 {
 
-    public static bool $ENABLED = true;
-
     /**
      * It returns a default user with id 1.
      */

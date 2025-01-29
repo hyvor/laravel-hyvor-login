@@ -22,6 +22,12 @@ return [
     'private_instance' => env('HYVOR_PRIVATE_INSTANCE'),
 
     /**
+     * Whether to fake auth and billing
+     * Only possible in the local environment
+     */
+    'fake' => env('HYVOR_FAKE', false),
+
+    /**
      * Which component is this?
      * See `src/InternalApi/ComponentType.php` for available components
      *
@@ -39,12 +45,19 @@ return [
         'routes' => true,
 
         /**
+         * If routes is true, set the domain restriction
+         * By default, added to all domains
+         */
+        'routes_domain' => '{any}',
+
+        /**
          * Login provider to use
          *
          * - hyvor: Hyvor API (default, requires hyvor.com self-hosted)
          * - fake: Fake login (for testing)
          *
          * Using env is deprecated see 'Local Development' in README.md
+         * Use HYVOR_FAKE instead
          */
         'provider' => env('AUTH_PROVIDER', 'fake'),
 
