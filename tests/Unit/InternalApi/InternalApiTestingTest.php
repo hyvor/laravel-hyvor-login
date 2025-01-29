@@ -2,33 +2,35 @@
 
 namespace Hyvor\Internal\Tests\Unit\InternalApi;
 
-use Hyvor\Internal\InternalApi\Testing\InternalApiTesting;
+use Hyvor\Internal\Tests\Case\InternalApiTestingCase;
 
-it('calls self', function() {
+class InternalApiTestingTest extends InternalApiTestingCase
+{
+    public function testCallsSelf(): void
+    {
+        $response = $this->internalApi(
+            'GET',
+            '/internal-api-testing-test-route',
+            [
+                'test' => 'test'
+            ]
+        );
 
-    InternalApiTesting::call(
-        'GET',
-        '/internal-api-testing-test-route',
-        [
-            'test' => 'test'
-        ]
-    )
-        ->assertOk()
-        ->assertJsonPath('test', 'test');
+        $response->assertOk();
+        $response->assertJsonPath('test', 'test');
+    }
 
-});
+    public function testCallsPost(): void
+    {
+        $response = $this->internalApi(
+            'POST',
+            '/internal-api-testing-test-route-post',
+            [
+                'test' => 'post'
+            ]
+        );
 
-it('calls post', function() {
-
-    InternalApiTesting::call(
-        'POST',
-        '/internal-api-testing-test-route-post',
-        [
-            'test' => 'post'
-        ]
-    )
-        ->assertOk()
-        ->assertJsonPath('test', 'post');
-
-
-});
+        $response->assertOk();
+        $response->assertJsonPath('test', 'post');
+    }
+}

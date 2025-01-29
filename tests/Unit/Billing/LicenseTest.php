@@ -8,7 +8,7 @@ use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
 
-class GetSubscriptionTest extends  TestCase
+class LicenseTest extends TestCase
 {
 
     public function testNoSubscriptions(): void
@@ -20,12 +20,13 @@ class GetSubscriptionTest extends  TestCase
             ])
         ]);
 
-        $subscription = Billing::getSubscriptionOfUser(ComponentType::TALK, 1);
+        $billing = new Billing();
+        $subscription = $billing->license(ComponentType::TALK, 1);
         $this->assertNull($subscription);
 
     }
 
-    public function testWithBlogsSubscription() : void
+    public function testWithBlogsSubscription(): void
     {
 
         Http::fake([

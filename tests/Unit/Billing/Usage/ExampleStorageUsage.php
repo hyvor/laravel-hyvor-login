@@ -18,7 +18,7 @@ class ExampleStorageUsage extends UsageAbstract
 
     public function getKey(): string
     {
-        return 'storageGb';
+        return 'storage';
     }
 
     public function usageOfResource(int $resourceId): int

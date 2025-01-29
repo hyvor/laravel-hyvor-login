@@ -11,13 +11,13 @@ use Hyvor\Internal\Billing\License\Plan\PlanAbstract;
 use Hyvor\Internal\Billing\License\Plan\TalkPlan;
 use Hyvor\Internal\Billing\License\TalkLicense;
 
-enum ComponentType : string
+enum ComponentType: string
 {
     case CORE = 'core';
     case TALK = 'talk';
     case BLOGS = 'blogs';
 
-    public function name() : string
+    public function name(): string
     {
         return match ($this) {
             self::CORE => 'HYVOR',
@@ -30,22 +30,22 @@ enum ComponentType : string
      * @deprecated
      * @codeCoverageIgnore
      */
-    public static function fromConfig() : self
+    public static function fromConfig(): self
     {
         $config = config('internal.component');
         return self::from($config);
     }
 
-    public static function current() : self
+    public static function current(): self
     {
         $config = config('internal.component');
         return self::from($config);
     }
 
     /**
-     * @deprecated Use ComponentType::current instead
+     * @deprecated Use InstanceUrl::componentUrl instead
      */
-    public function getCoreUrl() : string
+    public function getCoreUrl(): string
     {
         $currentUrl = config('internal.instance');
 
@@ -66,7 +66,7 @@ enum ComponentType : string
     /**
      * @deprecated Use InstanceUrl::componentUrl instead
      */
-    public function getUrlOfFrom(self $type) : string
+    public function getUrlOfFrom(self $type): string
     {
 
         $coreUrl = $this->getCoreUrl();
@@ -89,7 +89,7 @@ enum ComponentType : string
     /**
      * @deprecated Use InstanceUrl::componentUrl instead
      */
-    public static function getUrlOf(self $type) : string
+    public static function getUrlOf(self $type): string
     {
         return self::current()->getUrlOfFrom($type);
     }
@@ -97,7 +97,7 @@ enum ComponentType : string
     /**
      * @return class-string<License>
      */
-    public function license() : string
+    public function license(): string
     {
         return match ($this) {
             self::CORE => CoreLicense::class,

@@ -16,11 +16,11 @@ class UsageAbstractTest extends TestCase
         $this->assertEquals(200, $usage->usageOfUser(1));
 
         // user
-        $licenseWithoutDerived = new BlogsLicense(storageGb: 300);
+        $licenseWithoutDerived = new BlogsLicense(storage: 300);
         $this->assertFalse($usage->hasReached($licenseWithoutDerived, 1, 1));
 
         // resource
-        $resourceLicense = (new BlogsLicense(storageGb: 100))->setDerivedFrom(DerivedFrom::CUSTOM_RESOURCE);
+        $resourceLicense = (new BlogsLicense(storage: 100))->setDerivedFrom(DerivedFrom::CUSTOM_RESOURCE);
         $this->assertTrue($usage->hasReached($resourceLicense, 1, 1));
         $this->assertFalse($usage->hasExceeded($resourceLicense, 1, 1));
 

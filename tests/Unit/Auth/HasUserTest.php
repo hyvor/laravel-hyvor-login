@@ -4,22 +4,31 @@ namespace Hyvor\Internal\Tests\Unit\Auth;
 
 use Hyvor\Internal\Auth\AuthUser;
 use Hyvor\Internal\Auth\HasUser;
+use Hyvor\Internal\Tests\TestCase;
 
 class ModelWithHasUser
 {
     use HasUser;
-    public $user_id = 10;
+
+    public ?int $user_id = 10;
 }
 
-it('has user', function () {
-    $model = new ModelWithHasUser();
-    $user = $model->user();
-    expect($user)->toBeInstanceOf(AuthUser::class);
-    expect($user->id)->toBe(10);
-});
+class HasUserTest extends TestCase
+{
 
-it('returns null if user_id is not set', function () {
-    $model = new ModelWithHasUser();
-    $model->user_id = null;
-    expect($model->user())->toBeNull();
-});
+    public function testHasUser(): void
+    {
+        $model = new ModelWithHasUser();
+        $user = $model->user();
+        $this->assertInstanceOf(AuthUser::class, $user);
+        $this->assertEquals(10, $user->id);
+    }
+
+    public function testReturnsNullIfUserIdIsNotSet(): void
+    {
+        $model = new ModelWithHasUser();
+        $model->user_id = null;
+        $this->assertNull($model->user());
+    }
+
+}

@@ -5,25 +5,33 @@ namespace Hyvor\Internal\Tests\Unit\Http\Middleware;
 use Hyvor\Internal\Http\Exceptions\HttpException;
 use Hyvor\Internal\Http\Middleware\AccessAuthUser;
 use Hyvor\Internal\Http\Middleware\AuthMiddleware;
+use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Http\Request;
 
-it('throws an error when the user is not logged in', function () {
+class AuthMiddlewareTest extends TestCase
+{
 
-    config(['internal.auth.fake.user_id' => null]);
-    $request = new Request();
-    (new AuthMiddleware())->handle($request, function () {});
+    public function testThrowsErrorWhenUserNotLoggedIn(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Unauthorized');
 
-})->throws(HttpException::class, 'Unauthorized');
+        config(['internal.auth.fake.user_id' => null]);
+        $request = new Request();
+        (new AuthMiddleware())->handle($request, function () {
+        });
+    }
 
-it('sets access auth user when user is logged in', function() {
+    public function testSetsAccessAuthUserWhenUserLoggedIn(): void
+    {
+        config(['internal.auth.fake.user_id' => 15]);
 
-    config(['internal.auth.fake.user_id' => 15]);
+        $request = new Request();
+        (new AuthMiddleware())->handle($request, function () {
+            $user = app(AccessAuthUser::class);
+            $this->assertInstanceOf(AccessAuthUser::class, $user);
+            $this->assertEquals(15, $user->id);
+        });
+    }
 
-    $request = new Request();
-    (new AuthMiddleware())->handle($request, function () {
-        $user = app(AccessAuthUser::class);
-        expect($user)->toBeInstanceOf(AccessAuthUser::class);
-        expect($user->id)->toBe(15);
-    });
-
-});
+}

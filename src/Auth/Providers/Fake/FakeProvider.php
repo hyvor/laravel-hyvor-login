@@ -102,21 +102,14 @@ class FakeProvider implements ProviderInterface
      */
     public function fakeLoginUser(array $fill = []): AuthUser
     {
-        $faker = Factory::create();
-
         $fakeId = self::getFakeUserId();
         if (self::$DATABASE && $fakeId && $this->singleSearch('id', $fakeId)) {
             return $this->singleSearch('id', $fakeId);
         }
-
-        return AuthUser::fromArray(array_merge([
-            'id' => $fakeId ?? $faker->randomNumber(),
-            'username' => $faker->name(),
-            'name' => $faker->name(),
-            'email' => $faker->email(),
-            'email_relay' => $faker->userName() . '@relay.hyvor.com',
-            'picture_url' => 'https://picsum.photos/100/100',
-        ], $fill));
+        if ($fakeId) {
+            $fill['id'] = $fakeId;
+        }
+        return self::generateUser($fill);
     }
 
     /**
@@ -129,7 +122,7 @@ class FakeProvider implements ProviderInterface
         }
 
         // @phpstan-ignore-next-line
-        return self::fakeLoginUser([$key => $value]);
+        return self::generateUser([$key => $value]);
     }
 
     /**
@@ -148,7 +141,7 @@ class FakeProvider implements ProviderInterface
         return collect($values)
             ->map(function ($value) use ($key) {
                 // @phpstan-ignore-next-line
-                return self::fakeLoginUser([$key => $value]);
+                return self::generateUser([$key => $value]);
             })
             ->keyBy($key);
     }
@@ -163,7 +156,7 @@ class FakeProvider implements ProviderInterface
                 if ($user instanceof AuthUser) {
                     return $user;
                 }
-                return self::fakeLoginUser($user);
+                return self::generateUser($user);
             });
     }
 
@@ -189,8 +182,26 @@ class FakeProvider implements ProviderInterface
             self::$DATABASE = collect([]);
         }
         self::$DATABASE->push(
-            $user instanceof AuthUser ? $user : self::fakeLoginUser($user)
+            $user instanceof AuthUser ? $user : self::generateUser($user)
         );
+    }
+
+    /**
+     * @param AuthUserArrayPartial $fill
+     */
+    public static function generateUser(array $fill = []): AuthUser
+    {
+        $faker = Factory::create();
+
+        return AuthUser::fromArray(array_merge([
+            'id' => $faker->randomNumber(),
+            'username' => $faker->name(),
+            'name' => $faker->name(),
+            'email' => $faker->email(),
+            'email_relay' => $faker->userName() . '@relay.hyvor.com',
+            'picture_url' => 'https://picsum.photos/100/100',
+        ], $fill));
+
     }
 
 }
