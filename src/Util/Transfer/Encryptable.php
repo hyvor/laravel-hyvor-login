@@ -16,9 +16,7 @@ trait Encryptable
     {
         $className = get_class($this);
 
-        if (!str_starts_with($className, 'Hyvor\Internal\\')) {
-            throw new \InvalidArgumentException('Only objects within the Hyvor\Internal namespace can be encrypted');
-        }
+        assert(str_starts_with($className, 'Hyvor\\Internal\\'), 'Invalid token: expected internal class');
 
         return Crypt::encrypt($this);
     }

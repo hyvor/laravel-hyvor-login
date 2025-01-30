@@ -17,7 +17,7 @@ class AuthMiddlewareTest extends TestCase
         $this->expectException(HttpException::class);
         $this->expectExceptionMessage('Unauthorized');
 
-        config(['internal.auth.fake.user_id' => null]);
+        AuthFake::enable(null);
         $request = new Request();
         (new AuthMiddleware())->handle($request, function () {
         });

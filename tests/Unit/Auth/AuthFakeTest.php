@@ -6,9 +6,6 @@ use Hyvor\Internal\Auth\Auth;
 use Hyvor\Internal\Auth\AuthFake;
 use Hyvor\Internal\Tests\TestCase;
 
-/**
- * @covers AuthFake
- */
 class AuthFakeTest extends TestCase
 {
     private function provider(): AuthFake

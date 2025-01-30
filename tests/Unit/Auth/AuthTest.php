@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Http;
 /**
  * @covers Auth
  */
-class Authtest extends TestCase
+class AuthTest extends TestCase
 {
     private Auth $provider;
 
