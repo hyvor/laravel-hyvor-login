@@ -5,7 +5,7 @@ namespace Hyvor\Internal\Auth\Providers\Fake;
 use Faker\Factory;
 use Hyvor\Internal\Auth\AuthUser;
 use Hyvor\Internal\Auth\Providers\CurrentProvider;
-use Hyvor\Internal\Auth\Providers\ProviderInterface;
+use Hyvor\Internal\Auth\Providers\AuthProviderInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
@@ -13,28 +13,38 @@ use Illuminate\Support\Collection;
 /**
  * @phpstan-import-type AuthUserArrayPartial from AuthUser
  */
-class FakeProvider implements ProviderInterface
+class AuthFake implements AuthProviderInterface
 {
 
     /**
-     * If $DATABASE is set, users will be searched (in fromX() methods) from this collection
+     * If $userDatabase is set, users will be searched (in fromX() methods) from this collection
      * Results will only be returned if the search is matched
      * If it is not set, all users will always be matched using fake data (for testing)
      * @var Collection<int, AuthUser>|null
      */
-    public static ?Collection $DATABASE = null;
+    private ?Collection $userDatabase = null;
 
-    public static function enable(): void
+    /**
+     * Currently logged-in user
+     */
+    public ?AuthUser $user = null;
+
+    /**
+     * @param AuthUser|AuthUserArrayPartial|null $user
+     */
+    public static function enable(null|AuthUser|array $user = null): void
     {
-        CurrentProvider::set(FakeProvider::class);
+        $fake = new self();
+        if (is_array($user)) {
+            $user = self::generateUser($user);
+        }
+        $fake->user = $user;
+        CurrentProvider::set($fake);
     }
 
     public function check(): false|AuthUser
     {
-        if ($this->getFakeUserId()) {
-            return $this->fakeLoginUser();
-        }
-        return false;
+        return $this->user ?: false;
     }
 
     public function login(?string $redirect = null): RedirectResponse|Redirector
@@ -94,41 +104,17 @@ class FakeProvider implements ProviderInterface
         return $this->singleSearch('username', $username);
     }
 
-    public static function getFakeUserId(): ?int
-    {
-        $id = config('internal.auth.fake.user_id');
-        if (is_int($id)) {
-            return $id;
-        }
-        return null;
-    }
-
-    /**
-     * @param AuthUserArrayPartial $fill
-     */
-    private function fakeLoginUser(array $fill = []): AuthUser
-    {
-        $fakeId = self::getFakeUserId();
-        if (self::$DATABASE && $fakeId && $this->singleSearch('id', $fakeId)) {
-            return $this->singleSearch('id', $fakeId);
-        }
-        if ($fakeId) {
-            $fill['id'] = $fakeId;
-        }
-        return self::generateUser($fill);
-    }
-
     /**
      * @param 'id' | 'username' | 'email' $key
      */
     private function singleSearch(string $key, string|int $value): ?AuthUser
     {
-        if (self::$DATABASE !== null) {
-            return self::$DATABASE->firstWhere($key, $value);
+        if ($this->userDatabase !== null) {
+            return $this->userDatabase->firstWhere($key, $value);
         }
 
         // @phpstan-ignore-next-line
-        return self::generateUser([$key => $value]);
+        return $this->generateUser([$key => $value]);
     }
 
     /**
@@ -138,8 +124,8 @@ class FakeProvider implements ProviderInterface
      */
     private function multiSearch(string $key, iterable $values): Collection
     {
-        if (self::$DATABASE !== null) {
-            return self::$DATABASE->whereIn($key, $values)
+        if ($this->userDatabase !== null) {
+            return $this->userDatabase->whereIn($key, $values)
                 ->keyBy($key);
         }
 
@@ -157,7 +143,10 @@ class FakeProvider implements ProviderInterface
      */
     public static function databaseSet(iterable $users = []): void
     {
-        self::$DATABASE = collect($users)
+        $fake = CurrentProvider::get();
+        assert($fake instanceof self);
+
+        $fake->userDatabase = collect($users)
             ->map(function ($user) {
                 if ($user instanceof AuthUser) {
                     return $user;
@@ -171,12 +160,19 @@ class FakeProvider implements ProviderInterface
      */
     public static function databaseGet(): ?Collection
     {
-        return self::$DATABASE;
+        $fake = CurrentProvider::get();
+        assert($fake instanceof self);
+        return $fake->userDatabase;
     }
 
+    /**
+     * @deprecated Database automatically cleared now since the use of app container
+     */
     public static function databaseClear(): void
     {
-        self::$DATABASE = null;
+        $fake = CurrentProvider::get();
+        assert($fake instanceof self);
+        $fake->userDatabase = null;
     }
 
     /**
@@ -184,10 +180,12 @@ class FakeProvider implements ProviderInterface
      */
     public static function databaseAdd($user): void
     {
-        if (self::$DATABASE === null) {
-            self::$DATABASE = collect([]);
+        $fake = CurrentProvider::get();
+        assert($fake instanceof self);
+        if ($fake->userDatabase === null) {
+            $fake->userDatabase = collect([]);
         }
-        self::$DATABASE->push(
+        $fake->userDatabase->push(
             $user instanceof AuthUser ? $user : self::generateUser($user)
         );
     }

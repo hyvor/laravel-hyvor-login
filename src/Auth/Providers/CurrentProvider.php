@@ -8,16 +8,16 @@ class CurrentProvider
 {
 
     /**
-     * @param class-string<ProviderInterface> $provider
+     * @param class-string<AuthProviderInterface>|AuthProviderInterface $provider
      */
-    public static function set(string $provider): void
+    public static function set(string|object $provider): void
     {
-        app()->bind(ProviderInterface::class, $provider);
+        app()->singleton(AuthProviderInterface::class, is_string($provider) ? $provider : fn() => $provider);
     }
 
-    public static function get(): ProviderInterface
+    public static function get(): AuthProviderInterface
     {
-        return app(ProviderInterface::class);
+        return app(AuthProviderInterface::class);
     }
 
 }

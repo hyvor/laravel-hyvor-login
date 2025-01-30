@@ -3,6 +3,7 @@
 namespace Hyvor\Internal\Tests\Feature\Auth;
 
 use Hyvor\Internal\Auth\AuthUser;
+use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Support\Collection;
 
@@ -28,11 +29,11 @@ class AuthUserTest extends TestCase
         $this->assertNull($user->bio);
         $this->assertNull($user->website_url);
         $this->assertNull($user->email_relay);
-
     }
 
     public function testFromIds(): void
     {
+        AuthFake::enable();
         $users = AuthUser::fromIds([1, 2]);
 
         $this->assertInstanceOf(Collection::class, $users);
@@ -45,12 +46,12 @@ class AuthUserTest extends TestCase
 
         $this->assertInstanceOf(AuthUser::class, $user);
         $this->assertEquals(3, $user->id);
-
     }
 
 
     public function testFromUsernames(): void
     {
+        AuthFake::enable();
         $users = AuthUser::fromUsernames(['johndoe', 'janedoe']);
 
         $this->assertInstanceOf(Collection::class, $users);
@@ -63,11 +64,11 @@ class AuthUserTest extends TestCase
 
         $this->assertInstanceOf(AuthUser::class, $user);
         $this->assertEquals('jimdoe', $user->username);
-
     }
 
     public function testFromEmails(): void
     {
+        AuthFake::enable();
         $users = AuthUser::fromEmails(['johndoe@hyvor.com', 'janedoe@hyvor.com']);
 
         $this->assertInstanceOf(Collection::class, $users);
@@ -81,7 +82,6 @@ class AuthUserTest extends TestCase
 
         $this->assertInstanceOf(AuthUser::class, $user);
         $this->assertEquals('jimdoe@hyvor.com', $user->email);
-
     }
 
 }

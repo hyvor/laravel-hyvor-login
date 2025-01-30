@@ -2,6 +2,7 @@
 
 namespace Hyvor\Internal\Tests\Feature\Auth;
 
+use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
 use Hyvor\Internal\InternalServiceProvider;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Routing\RouteCollection;
@@ -12,7 +13,6 @@ class AuthRoutesTest extends TestCase
 
     public function testDoesNotAddRoutesIfDisabled(): void
     {
-
         config(['internal.auth.routes' => false]);
         Route::setRoutes(new RouteCollection());
 
@@ -20,12 +20,10 @@ class AuthRoutesTest extends TestCase
         assert($app !== null);
         (new InternalServiceProvider($app))->boot();
         $this->get('/api/auth/check')->assertNotFound();
-
     }
 
     public function testCheckWhenNotLoggedIn(): void
     {
-
         config([
             'internal.auth.fake.user_id' => null
         ]);
@@ -34,24 +32,20 @@ class AuthRoutesTest extends TestCase
             ->post('/api/auth/check')
             ->assertJsonPath('is_logged_in', false)
             ->assertJsonPath('user', null);
-
     }
 
     public function testCheckWhenLoggedIn(): void
     {
-
-        config(['internal.auth.fake.user_id' => 1]);
+        AuthFake::enable(['id' => 1]);
 
         $this
             ->post('/api/auth/check')
             ->assertJsonPath('is_logged_in', true)
             ->assertJsonPath('user.id', 1);
-
     }
 
     public function testRedirects(): void
     {
-
         config(['internal.auth.provider' => 'hyvor']);
 
         $this
@@ -65,7 +59,6 @@ class AuthRoutesTest extends TestCase
         $this
             ->get('/api/auth/logout')
             ->assertRedirectContains('https://hyvor.com/logout?redirect=');
-
     }
 
     public function testRespectsDomain(): void
@@ -86,7 +79,6 @@ class AuthRoutesTest extends TestCase
         $this
             ->post('https://hyvor.cluster/api/auth/check')
             ->assertOk();
-
     }
 
 }

@@ -3,7 +3,7 @@
 namespace Hyvor\Internal\Auth\Providers\Hyvor;
 
 use Hyvor\Internal\Auth\AuthUser;
-use Hyvor\Internal\Auth\Providers\ProviderInterface;
+use Hyvor\Internal\Auth\Providers\AuthProviderInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -12,14 +12,13 @@ use Illuminate\Support\Collection;
 /**
  * @phpstan-import-type AuthUserArray from AuthUser
  */
-class HyvorProvider implements ProviderInterface
+class HyvorAuthProvider implements AuthProviderInterface
 {
 
     public const HYVOR_SESSION_COOKIE_NAME = 'authsess';
 
     public function check(): false|AuthUser
     {
-
         $cookie = $_COOKIE[self::HYVOR_SESSION_COOKIE_NAME] ?? null;
 
         if (!$cookie) {
@@ -37,14 +36,12 @@ class HyvorProvider implements ProviderInterface
         }
 
         return false;
-
     }
 
     private function redirectTo(
-        string  $page,
+        string $page,
         ?string $redirectPage = null
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $pos = strpos($page, '?');
         $placeholder = $pos === false ? '?' : '&';
 

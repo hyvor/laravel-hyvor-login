@@ -3,60 +3,56 @@
 namespace Hyvor\Internal\Tests\Unit\Auth\Providers;
 
 use Hyvor\Internal\Auth\AuthUser;
-use Hyvor\Internal\Auth\Providers\Fake\FakeProvider;
+use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
+use Hyvor\Internal\Auth\Providers\AuthProviderInterface;
 use Hyvor\Internal\Tests\TestCase;
 
-class FakeProviderTest extends TestCase
+/**
+ * @covers AuthFake
+ */
+class AuthFakeTest extends TestCase
 {
-    private FakeProvider $provider;
-
-    protected function setUp(): void
+    private function provider(): AuthFake
     {
-        parent::setUp();
-        $this->provider = new FakeProvider();
-        FakeProvider::databaseClear();
-    }
-
-    private function check(): AuthUser
-    {
-        $user = $this->provider->check();
-        assert($user instanceof AuthUser);
-        return $user;
+        $provider = app(AuthProviderInterface::class);
+        assert($provider instanceof AuthFake);
+        return $provider;
     }
 
     public function testCheckBasedOnUserIdConfig(): void
     {
-        $this->assertEquals(1, $this->check()->id);
+        AuthFake::enable(['id' => 1]);
+        $this->assertEquals(1, $this->provider()->user?->id);
 
-        config(['internal.auth.fake.user_id' => 2]);
-        $this->assertEquals(2, $this->check()->id);
+        AuthFake::enable(['id' => 2]);
+        $this->assertEquals(2, $this->provider()->user?->id);
 
-        config(['internal.auth.fake.user_id' => null]);
-        $this->assertFalse($this->provider->check());
+        AuthFake::enable(null);
+        $this->assertNull($this->provider()->user);
     }
 
     public function testDatabaseHelperFunctions(): void
     {
-        FakeProvider::databaseSet([
+        AuthFake::databaseSet([
             ['id' => 1, 'name' => 'John'],
             ['id' => 2, 'name' => 'Jane'],
         ]);
 
-        $db = FakeProvider::databaseGet();
+        $db = AuthFake::databaseGet();
         $this->assertNotNull($db);
         $this->assertCount(2, $db);
         $this->assertEquals('John', $db[0]->name);
         $this->assertEquals('Jane', $db[1]->name);
 
-        FakeProvider::databaseAdd(['id' => 3, 'name' => 'Jack']);
+        AuthFake::databaseAdd(['id' => 3, 'name' => 'Jack']);
         $this->assertCount(3, $db);
         $this->assertEquals('Jack', $db[2]->name);
 
-        FakeProvider::databaseClear();
-        $this->assertNull(FakeProvider::databaseGet());
+        AuthFake::databaseClear();
+        $this->assertNull(AuthFake::databaseGet());
 
-        FakeProvider::databaseAdd(['id' => 3, 'name' => 'Jack']);
-        $db = FakeProvider::databaseGet();
+        AuthFake::databaseAdd(['id' => 3, 'name' => 'Jack']);
+        $db = AuthFake::databaseGet();
         $this->assertNotNull($db);
         $this->assertCount(1, $db);
         $this->assertEquals('Jack', $db[0]->name);
@@ -70,7 +66,7 @@ class FakeProviderTest extends TestCase
         $this->assertEquals(20, $id20->id);
 
         // with DB
-        FakeProvider::databaseSet([
+        AuthFake::databaseSet([
             ['id' => 1, 'name' => 'John'],
             ['id' => 2, 'name' => 'Jane'],
         ]);
@@ -92,7 +88,7 @@ class FakeProviderTest extends TestCase
         $this->assertEquals('20@test.com', $email20->email);
 
         // with DB
-        FakeProvider::databaseSet([
+        AuthFake::databaseSet([
             ['id' => 1, 'name' => 'John', 'email' => 'john@test.com'],
             ['id' => 2, 'name' => 'Jane', 'email' => 'jane@test.com']
         ]);
@@ -114,7 +110,7 @@ class FakeProviderTest extends TestCase
         $this->assertEquals('user20', $username20->username);
 
         // with DB
-        FakeProvider::databaseSet([
+        AuthFake::databaseSet([
             ['id' => 1, 'name' => 'John', 'username' => 'john'],
             ['id' => 2, 'name' => 'Jane', 'username' => 'jane']
         ]);
@@ -137,7 +133,7 @@ class FakeProviderTest extends TestCase
         $this->assertEquals(3, $ids[3]->id);
 
         // with DB
-        FakeProvider::databaseSet([
+        AuthFake::databaseSet([
             ['id' => 1, 'name' => 'John', 'username' => 'john'],
             ['id' => 2, 'name' => 'Jane', 'username' => 'jane']
         ]);
@@ -157,7 +153,7 @@ class FakeProviderTest extends TestCase
         $this->assertEquals('user3', $usernames['user3']->username);
 
         // with DB
-        FakeProvider::databaseSet([
+        AuthFake::databaseSet([
             ['id' => 1, 'name' => 'John', 'username' => 'john'],
             ['id' => 2, 'name' => 'Jane', 'username' => 'jane']
         ]);
@@ -176,7 +172,7 @@ class FakeProviderTest extends TestCase
         $this->assertEquals('user2@test.com', $emails['user2@test.com']->email);
 
         // with DB
-        FakeProvider::databaseSet([
+        AuthFake::databaseSet([
             ['id' => 1, 'name' => 'John', 'email' => 'john@test.com'],
             ['id' => 2, 'name' => 'Jane', 'email' => 'jane@test.com']
         ]);

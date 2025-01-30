@@ -12,33 +12,28 @@ class Resource
     public function register(
         int $userId,
         int $resourceId
-    ): void
-    {
-
+    ): void {
         InternalApi::call(
             ComponentType::CORE,
-            InternalApiMethod::GET,
+            InternalApiMethod::POST,
             '/resource/register',
             [
                 'user_id' => $userId,
                 'resource_id' => $resourceId,
             ]
         );
-
     }
 
     public function delete(int $resourceId): void
     {
-
         InternalApi::call(
             ComponentType::CORE,
-            InternalApiMethod::GET,
+            InternalApiMethod::POST,
             '/resource/delete',
             [
                 'resource_id' => $resourceId,
             ]
         );
-
     }
 
 }

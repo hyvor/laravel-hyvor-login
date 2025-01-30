@@ -3,8 +3,8 @@
 namespace Hyvor\Internal;
 
 use Hyvor\Internal\Auth\Providers\CurrentProvider;
-use Hyvor\Internal\Auth\Providers\Fake\FakeProvider;
-use Hyvor\Internal\Auth\Providers\Hyvor\HyvorProvider;
+use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
+use Hyvor\Internal\Auth\Providers\Hyvor\HyvorAuthProvider;
 use Hyvor\Internal\Billing\BillingFake;
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\Resource\ResourceFake;
@@ -25,7 +25,7 @@ class InternalServiceProvider extends ServiceProvider
         }
 
         // set auth provider
-        CurrentProvider::set(HyvorProvider::class);
+        CurrentProvider::set(HyvorAuthProvider::class);
 
         if (
             config('app.env') === 'local' &&
@@ -47,12 +47,8 @@ class InternalServiceProvider extends ServiceProvider
         $fakeConfig = new $class;
 
         // fake auth
-        FakeProvider::enable();
         $user = $fakeConfig->user();
-        if ($user) {
-            config(['internal.auth.fake.user_id' => $user->id]);
-        }
-        FakeProvider::databaseSet($user ? [$user] : []);
+        AuthFake::enable($user);
 
         // fake billing
         BillingFake::enable(license: function (int $userId, ?int $resourceId, ComponentType $component) use ($fakeConfig

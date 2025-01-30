@@ -2,7 +2,9 @@
 
 namespace Hyvor\Internal\Tests\Feature\ServiceProvider;
 
-use Hyvor\Internal\Auth\Providers\Fake\FakeProvider;
+use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
+use Hyvor\Internal\Auth\Providers\Hyvor\HyvorAuthProvider;
+use Hyvor\Internal\Auth\Providers\AuthProviderInterface;
 use Hyvor\Internal\Billing\Billing;
 use Hyvor\Internal\Billing\License\BlogsLicense;
 use Hyvor\Internal\InternalApi\ComponentType;
@@ -12,48 +14,66 @@ use Illuminate\Support\Collection;
 class FakeTest extends \Orchestra\Testbench\TestCase
 {
 
-    public function testFakes(): void
+    private function bootServiceProvider(): void
     {
-
-        config(['app.env' => 'local']);
-        config(['internal.fake' => true]);
-
         $app = $this->app;
         assert($app !== null);
         $sp = new InternalServiceProvider($app);
         $sp->boot();
+    }
 
-        $this->assertTrue($app->bound('Hyvor\Internal\Billing\Billing'));
+    private function getApp(): \Illuminate\Foundation\Application
+    {
+        $app = $this->app;
+        assert($app !== null);
+        return $app;
+    }
+
+    public function testFakes(): void
+    {
+        config(['app.env' => 'local']);
+        config(['internal.fake' => true]);
+
+        $this->bootServiceProvider();
 
         // auth
-        $this->assertEquals('fake', config('internal.auth.provider'));
-        $this->assertEquals(1, config('internal.auth.fake.user_id'));
-        $this->assertInstanceOf(Collection::class, FakeProvider::$DATABASE);
-        $this->assertCount(1, FakeProvider::$DATABASE);
+        $app = $this->getApp();
+        $authInstance = $app->get(AuthProviderInterface::class);
+        $this->assertInstanceOf(AuthFake::class, $authInstance);
+        $this->assertEquals(1, $authInstance->user?->id);
 
         // billing
+        $this->assertTrue($app->bound(Billing::class));
         $license = $app->get(Billing::class)->license(1, null, ComponentType::BLOGS);
         $this->assertInstanceOf(BlogsLicense::class, $license);
         $this->assertEquals(2, $license->users);
-
     }
 
     public function testDoesNotFakeIfNotEnabled(): void
     {
-
         config(['app.env' => 'local']);
+        $this->bootServiceProvider();
+        $this->assertNotFaked();
+    }
 
-        assert($this->app !== null);
-        $sp = new InternalServiceProvider($this->app);
-        $sp->boot();
+    public function testDoesNotFakeIfNotLocal(): void
+    {
+        config(['app.env' => 'production']);
+        config(['internal.fake' => true]);
+        $this->bootServiceProvider();
+        $this->assertNotFaked();
+    }
 
-        $this->assertFalse($this->app->bound('Hyvor\Internal\Billing\Billing'));
-
+    private function assertNotFaked(): void
+    {
+        $app = $this->app;
+        assert($app !== null);
+        $this->assertInstanceOf(HyvorAuthProvider::class, $app->get(AuthProviderInterface::class));
+        $this->assertFalse($app->bound(Billing::class));
     }
 
     public function testUsesExtendedClassIfThatIsAvailable(): void
     {
-
         config(['app.env' => 'local']);
         config(['internal.fake' => true]);
 
@@ -65,19 +85,16 @@ class FakeTest extends \Orchestra\Testbench\TestCase
         $sp = new InternalServiceProvider($app);
         $sp->boot();
 
-        $this->assertTrue($app->bound('Hyvor\Internal\Billing\Billing'));
-
         // user
-        $this->assertEquals('fake', config('internal.auth.provider'));
-        $this->assertNull(config('internal.auth.fake.user_id'));
-        $this->assertInstanceOf(Collection::class, FakeProvider::$DATABASE);
-        $this->assertCount(0, FakeProvider::$DATABASE);
+        $authInstance = $app->get(AuthProviderInterface::class);
+        $this->assertInstanceOf(AuthFake::class, $authInstance);
+        $this->assertNull($authInstance->user);
 
         // billing
+        $this->assertTrue($app->bound(Billing::class));
         $license = $app->get(Billing::class)->license(1, null, ComponentType::BLOGS);
         $this->assertInstanceOf(BlogsLicense::class, $license);
         $this->assertEquals(3, $license->users);
-
     }
 
 }

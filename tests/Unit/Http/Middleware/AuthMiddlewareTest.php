@@ -2,6 +2,7 @@
 
 namespace Hyvor\Internal\Tests\Unit\Http\Middleware;
 
+use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
 use Hyvor\Internal\Http\Exceptions\HttpException;
 use Hyvor\Internal\Http\Middleware\AccessAuthUser;
 use Hyvor\Internal\Http\Middleware\AuthMiddleware;
@@ -24,7 +25,7 @@ class AuthMiddlewareTest extends TestCase
 
     public function testSetsAccessAuthUserWhenUserLoggedIn(): void
     {
-        config(['internal.auth.fake.user_id' => 15]);
+        AuthFake::enable(['id' => 15]);
 
         $request = new Request();
         (new AuthMiddleware())->handle($request, function () {

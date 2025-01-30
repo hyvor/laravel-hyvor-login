@@ -3,6 +3,7 @@
 namespace Hyvor\Internal\Tests\Feature\Auth;
 
 use Hyvor\Internal\Auth\Auth;
+use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Http\RedirectResponse;
 
@@ -11,17 +12,17 @@ class AuthTest extends TestCase
 
     public function testChecks(): void
     {
-
+        AuthFake::enable(['id' => 1]);
         $user = Auth::check();
         $this->assertNotFalse($user);
         $this->assertEquals(1, $user->id);
 
-        config(['internal.auth.fake.user_id' => 2]);
+        AuthFake::enable(['id' => 2]);
         $user = Auth::check();
         $this->assertNotFalse($user);
         $this->assertEquals(2, $user->id);
 
-        config(['internal.auth.fake.user_id' => null]);
+        AuthFake::enable(null);
         $this->assertFalse(Auth::check());
     }
 

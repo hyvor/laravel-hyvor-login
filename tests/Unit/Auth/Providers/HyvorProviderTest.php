@@ -3,7 +3,7 @@
 namespace Hyvor\Internal\Tests\Unit\Auth\Providers;
 
 use Hyvor\Internal\Auth\AuthUser;
-use Hyvor\Internal\Auth\Providers\Hyvor\HyvorProvider;
+use Hyvor\Internal\Auth\Providers\Hyvor\HyvorAuthProvider;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\RedirectResponse;
@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Http;
 
 class HyvorProviderTest extends TestCase
 {
-    private HyvorProvider $provider;
+    private HyvorAuthProvider $provider;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->provider = new HyvorProvider();
+        $this->provider = new HyvorAuthProvider();
     }
 
     public function testCheckWhenNoCookieSet(): void
@@ -29,7 +29,7 @@ class HyvorProviderTest extends TestCase
     public function testCheckWhenCookieIsSet(): void
     {
         $_COOKIE = [
-            HyvorProvider::HYVOR_SESSION_COOKIE_NAME => 'test-cookie'
+            HyvorAuthProvider::HYVOR_SESSION_COOKIE_NAME => 'test-cookie'
         ];
 
         Http::fake([
@@ -50,14 +50,14 @@ class HyvorProviderTest extends TestCase
         $this->assertEquals('test@test.com', $user->email);
 
         Http::assertSent(function (Request $request) {
-            return $request->hasHeader('Cookie', HyvorProvider::HYVOR_SESSION_COOKIE_NAME . '=test-cookie');
+            return $request->hasHeader('Cookie', HyvorAuthProvider::HYVOR_SESSION_COOKIE_NAME . '=test-cookie');
         });
     }
 
     public function testReturnsFalseWhenCheckFails(): void
     {
         $_COOKIE = [
-            HyvorProvider::HYVOR_SESSION_COOKIE_NAME => 'test'
+            HyvorAuthProvider::HYVOR_SESSION_COOKIE_NAME => 'test'
         ];
         Http::fake([
             'https://hyvor.com/api/auth/check' => Http::response([], 422)
