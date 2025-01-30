@@ -5,6 +5,7 @@ namespace Hyvor\Internal;
 use Hyvor\Internal\Auth\AuthFake;
 use Hyvor\Internal\Billing\BillingFake;
 use Hyvor\Internal\InternalApi\ComponentType;
+use Hyvor\Internal\Internationalization\I18n;
 use Hyvor\Internal\Resource\ResourceFake;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
@@ -15,6 +16,7 @@ class InternalServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->routes();
+        $this->i18n();
         $this->fake();
         $this->phpRuntime();
     }
@@ -29,6 +31,11 @@ class InternalServiceProvider extends ServiceProvider
         if (App::environment('testing')) {
             $this->loadRoutesFrom(__DIR__ . '/routes/testing.php');
         }
+    }
+
+    private function i18n(): void
+    {
+        $this->app->singleton(I18n::class, fn() => new I18n());
     }
 
     private function fake(): void

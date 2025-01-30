@@ -5,20 +5,21 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="Test Suite">
+        <testsuite name="src">
             <directory suffix="Test.php">./tests</directory>
+        </testsuite>
+        <testsuite name="types">
+            <directory suffix="Test.php">./types/tests</directory>
         </testsuite>
     </testsuites>
     <source>
         <include>
-            <directory suffix=".php">./app</directory>
             <directory suffix=".php">./src</directory>
         </include>
     </source>
-
     <php>
-        <env name="APP_KEY" value="base64:1irAcKPAtLigPMX/ZDlz7D8CidOIPdgqpaCYUU2EIoU=" />
-        <env name="APP_DEBUG" value="true" />
-        <env name="AUTH_HYVOR_PRIVATE_URL" value="https://hyvor.com" />
+        <env name="APP_KEY" value="base64:1irAcKPAtLigPMX/ZDlz7D8CidOIPdgqpaCYUU2EIoU="/>
+        <env name="APP_DEBUG" value="true"/>
+        <env name="AUTH_HYVOR_PRIVATE_URL" value="https://hyvor.com"/>
     </php>
 </phpunit>

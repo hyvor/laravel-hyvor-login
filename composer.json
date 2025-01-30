@@ -3,7 +3,7 @@
     "description": "Internal Package for HYVOR Applications",
     "type": "library",
     "license": "MIT",
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "Hyvor\\Internal\\": "src/"
@@ -11,7 +11,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Hyvor\\Internal\\Tests\\": "tests"
+            "Hyvor\\Internal\\Tests\\": "tests",
+            "Hyvor\\Internal\\Types\\": "types"
         }
     },
     "authors": [
@@ -28,8 +29,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Hyvor\\Internal\\InternalServiceProvider",
-                "Hyvor\\Internal\\Internationalization\\InternationalizationServiceProvider"
+                "Hyvor\\Internal\\InternalServiceProvider"
             ]
         }
     },

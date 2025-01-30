@@ -5,4 +5,4 @@
 #			- phpstan.broker.dynamicStaticMethodReturnTypeExtension
 
 rules:
-    - Hyvor\Internal\PHPStan\LicenseIntAndBoolOnlyRule
+    - Hyvor\Internal\Types\LicenseIntAndBoolOnlyRule

@@ -1,8 +1,8 @@
 <?php
 
-namespace Hyvor\Internal\Tests\Unit\PHPStan;
+namespace Hyvor\Internal\Types\tests;
 
-use Hyvor\Internal\PHPStan\LicenseIntAndBoolOnlyRule;
+use Hyvor\Internal\Types\LicenseIntAndBoolOnlyRule;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 
@@ -19,14 +19,12 @@ class LicenseIntAndBoolOnlyRuleTest extends RuleTestCase
 
     public function testRule(): void
     {
-
         $this->analyse([__DIR__ . '/data/license-int-and-bool-fail.php'], [
             [
                 'License property $myBadLimit should be int or bool', // asserted error message
-                8, // asserted error line
+                10, // asserted error line
             ],
         ]);
-
     }
 
 }

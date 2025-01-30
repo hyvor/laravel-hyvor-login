@@ -1,6 +1,6 @@
 <?php
 
-namespace Hyvor\Internal\PHPStan;
+namespace Hyvor\Internal\Types;
 
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
@@ -21,7 +21,6 @@ class LicenseIntAndBoolOnlyRule implements \PHPStan\Rules\Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-
         if (!$node instanceof ClassPropertyNode) {
             return [];
         }
@@ -53,7 +52,6 @@ class LicenseIntAndBoolOnlyRule implements \PHPStan\Rules\Rule
 
     private function validate(mixed $type, string $name): string|true
     {
-
         if (
             !$type instanceof Node\Identifier ||
             !in_array($type->name, ['int', 'bool'])
@@ -62,6 +60,5 @@ class LicenseIntAndBoolOnlyRule implements \PHPStan\Rules\Rule
         }
 
         return true;
-
     }
 }
