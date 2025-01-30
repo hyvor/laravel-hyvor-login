@@ -2,7 +2,7 @@
 
 namespace Hyvor\Internal\Tests\Unit\Http\Middleware;
 
-use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
+use Hyvor\Internal\Auth\AuthFake;
 use Hyvor\Internal\Http\Exceptions\HttpException;
 use Hyvor\Internal\Http\Middleware\AccessAuthUser;
 use Hyvor\Internal\Http\Middleware\AuthMiddleware;

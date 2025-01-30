@@ -27,19 +27,16 @@ class LogFake
         string $level,
         string $message = null,
         ?array $context = null,
-    ) : void
-    {
-
+    ): void {
         // @phpstan-ignore-next-line
         Log::assertLogged(function (LogEntry $entry) use ($level, $message, $context) {
-            expect($entry->level)->toBe($level);
-            expect($entry->message)->toBe($message);
+            \PHPUnit\Framework\Assert::assertEquals($level, $entry->level);
+            \PHPUnit\Framework\Assert::assertEquals($message, $entry->message);
             if ($context !== null) {
-                expect($entry->context)->toBe($context);
+                \PHPUnit\Framework\Assert::assertEquals($context, $entry->context);
             }
             return true;
         });
-
     }
 
     /**
@@ -47,8 +44,7 @@ class LogFake
      */
     public static function assertLoggedCallback(
         callable $callback
-    ) : void
-    {
+    ): void {
         // @phpstan-ignore-next-line
         Log::assertLogged(function (LogEntry $entry) use ($callback) {
             return $callback($entry->level, $entry->message, $entry->context);

@@ -2,9 +2,7 @@
 
 namespace Hyvor\Internal;
 
-use Hyvor\Internal\Auth\Providers\CurrentProvider;
-use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
-use Hyvor\Internal\Auth\Providers\Hyvor\HyvorAuthProvider;
+use Hyvor\Internal\Auth\AuthFake;
 use Hyvor\Internal\Billing\BillingFake;
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\Resource\ResourceFake;
@@ -16,27 +14,35 @@ class InternalServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->routes();
+        $this->fake();
+        $this->phpRuntime();
+    }
+
+    private function routes(): void
+    {
+        // auth routes
         if (config('internal.auth.routes')) {
             $this->loadRoutesFrom(__DIR__ . '/routes/auth.php');
         }
-
+        // testing routes
         if (App::environment('testing')) {
             $this->loadRoutesFrom(__DIR__ . '/routes/testing.php');
-        }
-
-        // set auth provider
-        CurrentProvider::set(HyvorAuthProvider::class);
-
-        if (
-            config('app.env') === 'local' &&
-            config('internal.fake')
-        ) {
-            $this->fake();
         }
     }
 
     private function fake(): void
     {
+        // must be local
+        if (config('app.env') !== 'local') {
+            return;
+        }
+
+        // fake must be enabled in config (HYVOR_FAKE env variable)
+        if (config('internal.fake') !== true) {
+            return;
+        }
+
         $class = InternalFake::class;
 
         if (class_exists('Hyvor\Internal\InternalFakeExtended')) {
@@ -58,6 +64,19 @@ class InternalServiceProvider extends ServiceProvider
 
         // fake resource
         ResourceFake::enable();
+    }
+
+    /**
+     * PHP is not the most beautifully designed language.
+     * Here, we are trying to adjust/validate some not-so-good parts of PHP.
+     */
+    private function phpRuntime(): void
+    {
+        // assert() should always throw an exception
+        // docs: https://www.php.net/manual/en/function.assert.php
+        if (ini_get('zend.assertions') !== '1') {
+            throw new \RuntimeException('zend.assertions must be set to 1');
+        }
     }
 
     public function register()

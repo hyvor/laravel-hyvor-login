@@ -2,14 +2,12 @@
 
 namespace Hyvor\Internal\Tests\Feature\ServiceProvider;
 
-use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
-use Hyvor\Internal\Auth\Providers\Hyvor\HyvorAuthProvider;
-use Hyvor\Internal\Auth\Providers\AuthProviderInterface;
+use Hyvor\Internal\Auth\Auth;
+use Hyvor\Internal\Auth\AuthFake;
 use Hyvor\Internal\Billing\Billing;
 use Hyvor\Internal\Billing\License\BlogsLicense;
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\InternalServiceProvider;
-use Illuminate\Support\Collection;
 
 class FakeTest extends \Orchestra\Testbench\TestCase
 {
@@ -38,7 +36,7 @@ class FakeTest extends \Orchestra\Testbench\TestCase
 
         // auth
         $app = $this->getApp();
-        $authInstance = $app->get(AuthProviderInterface::class);
+        $authInstance = $app->get(Auth::class);
         $this->assertInstanceOf(AuthFake::class, $authInstance);
         $this->assertEquals(1, $authInstance->user?->id);
 
@@ -68,7 +66,7 @@ class FakeTest extends \Orchestra\Testbench\TestCase
     {
         $app = $this->app;
         assert($app !== null);
-        $this->assertInstanceOf(HyvorAuthProvider::class, $app->get(AuthProviderInterface::class));
+        $this->assertInstanceOf(Auth::class, $app->get(Auth::class));
         $this->assertFalse($app->bound(Billing::class));
     }
 
@@ -86,7 +84,7 @@ class FakeTest extends \Orchestra\Testbench\TestCase
         $sp->boot();
 
         // user
-        $authInstance = $app->get(AuthProviderInterface::class);
+        $authInstance = $app->get(Auth::class);
         $this->assertInstanceOf(AuthFake::class, $authInstance);
         $this->assertNull($authInstance->user);
 

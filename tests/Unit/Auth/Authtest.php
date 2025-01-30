@@ -1,23 +1,27 @@
 <?php
 
-namespace Hyvor\Internal\Tests\Unit\Auth\Providers;
+namespace Hyvor\Internal\Tests\Unit\Auth;
 
+use Hyvor\Internal\Auth\Auth;
 use Hyvor\Internal\Auth\AuthUser;
-use Hyvor\Internal\Auth\Providers\Hyvor\HyvorAuthProvider;
+use Hyvor\Internal\InternalApi\InternalApi;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 
-class HyvorProviderTest extends TestCase
+/**
+ * @covers Auth
+ */
+class Authtest extends TestCase
 {
-    private HyvorAuthProvider $provider;
+    private Auth $provider;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->provider = new HyvorAuthProvider();
+        $this->provider = new Auth();
     }
 
     public function testCheckWhenNoCookieSet(): void
@@ -29,15 +33,17 @@ class HyvorProviderTest extends TestCase
     public function testCheckWhenCookieIsSet(): void
     {
         $_COOKIE = [
-            HyvorAuthProvider::HYVOR_SESSION_COOKIE_NAME => 'test-cookie'
+            Auth::HYVOR_SESSION_COOKIE_NAME => 'test-cookie'
         ];
 
         Http::fake([
-            'https://hyvor.com/api/auth/check' => Http::response([
-                'id' => 1,
-                'name' => 'test',
-                'username' => 'test',
-                'email' => 'test@test.com'
+            'https://hyvor.com/api/internal/auth/check' => Http::response([
+                'user' => [
+                    'id' => 1,
+                    'name' => 'test',
+                    'username' => 'test',
+                    'email' => 'test@test.com'
+                ]
             ])
         ]);
 
@@ -50,17 +56,21 @@ class HyvorProviderTest extends TestCase
         $this->assertEquals('test@test.com', $user->email);
 
         Http::assertSent(function (Request $request) {
-            return $request->hasHeader('Cookie', HyvorAuthProvider::HYVOR_SESSION_COOKIE_NAME . '=test-cookie');
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            $this->assertEquals('test-cookie', $data['cookie']);
+            return true;
         });
     }
 
-    public function testReturnsFalseWhenCheckFails(): void
+    public function testReturnsFalseWhenUserIsNull(): void
     {
         $_COOKIE = [
-            HyvorAuthProvider::HYVOR_SESSION_COOKIE_NAME => 'test'
+            Auth::HYVOR_SESSION_COOKIE_NAME => 'test'
         ];
         Http::fake([
-            'https://hyvor.com/api/auth/check' => Http::response([], 422)
+            'https://hyvor.com/api/internal/auth/check' => Http::response([
+                'user' => null
+            ])
         ]);
         $this->assertFalse($this->provider->check());
     }
@@ -95,7 +105,7 @@ class HyvorProviderTest extends TestCase
     public function testFromIds(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/ids' => Http::response([
+            'https://hyvor.com/api/internal/auth/users/from/ids' => Http::response([
                 1 => [
                     'id' => 1,
                     'name' => 'test',
@@ -129,14 +139,15 @@ class HyvorProviderTest extends TestCase
         $this->assertEquals('test2@hyvor.com', $users[2]->email);
 
         Http::assertSent(function (Request $request) {
-            return $request['ids'] === '1,2';
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            return $data['ids'] === '1,2';
         });
     }
 
     public function testFromId(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/ids' => Http::response([
+            'https://hyvor.com/api/internal/auth/users/from/ids' => Http::response([
                 1 => [
                     'id' => 1,
                     'name' => 'test',
@@ -157,14 +168,15 @@ class HyvorProviderTest extends TestCase
         $this->assertEquals('https://hyvor.com/avatar.png', $user->picture_url);
 
         Http::assertSent(function (Request $request) {
-            return $request['ids'] === '1';
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            return $data['ids'] === '1';
         });
     }
 
     public function testFromIdNotFound(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/ids' => Http::response([])
+            'https://hyvor.com/api/internal/auth/users/from/ids' => Http::response([])
         ]);
         $user = $this->provider->fromId(1);
         $this->assertNull($user);
@@ -173,7 +185,7 @@ class HyvorProviderTest extends TestCase
     public function testFromUsernames(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/usernames' => Http::response([
+            'https://hyvor.com/api/internal/auth/users/from/usernames' => Http::response([
                 'test' => [
                     'id' => 1,
                     'name' => 'test',
@@ -207,14 +219,15 @@ class HyvorProviderTest extends TestCase
         $this->assertEquals('test2@hyvor.com', $users['test2']->email);
 
         Http::assertSent(function (Request $request) {
-            return $request['usernames'] === 'test,test2';
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            return $data['usernames'] === 'test,test2';
         });
     }
 
     public function testFromUsername(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/usernames' => Http::response([
+            'https://hyvor.com/api/internal/auth/users/from/usernames' => Http::response([
                 'test' => [
                     'id' => 1,
                     'name' => 'test',
@@ -233,14 +246,15 @@ class HyvorProviderTest extends TestCase
         $this->assertEquals('test@hyvor.com', $user->email);
 
         Http::assertSent(function (Request $request) {
-            return $request['usernames'] === 'test';
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            return $data['usernames'] === 'test';
         });
     }
 
     public function testFromUsernameNotFound(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/usernames' => Http::response([])
+            'https://hyvor.com/api/internal/auth/users/from/usernames' => Http::response([])
         ]);
         $user = $this->provider->fromUsername('test');
         $this->assertNull($user);
@@ -249,7 +263,7 @@ class HyvorProviderTest extends TestCase
     public function testFromEmails(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/emails' => Http::response([
+            'https://hyvor.com/api/internal/auth/users/from/emails' => Http::response([
                 'test@hyvor.com' => [
                     'id' => 1,
                     'name' => 'test',
@@ -283,14 +297,15 @@ class HyvorProviderTest extends TestCase
         $this->assertEquals('test2@hyvor.com', $users['test2@hyvor.com']->email);
 
         Http::assertSent(function (Request $request) {
-            return $request['emails'] === 'test@hyvor.com,test2@hyvor.com';
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            return $data['emails'] === 'test@hyvor.com,test2@hyvor.com';
         });
     }
 
     public function testFromEmail(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/emails' => Http::response([
+            'https://hyvor.com/api/internal/auth/users/from/emails' => Http::response([
                 'test@hyvor.com' => [
                     'id' => 1,
                     'name' => 'test',
@@ -309,14 +324,15 @@ class HyvorProviderTest extends TestCase
         $this->assertEquals('test@hyvor.com', $user->email);
 
         Http::assertSent(function (Request $request) {
-            return $request['emails'] === 'test@hyvor.com';
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            return $data['emails'] === 'test@hyvor.com';
         });
     }
 
     public function testFromEmailNotFound(): void
     {
         Http::fake([
-            'https://hyvor.com/api/auth/users/from/emails' => Http::response([])
+            'https://hyvor.com/api/internal/auth/users/from/emails' => Http::response([])
         ]);
         $user = $this->provider->fromEmail('test@hyvor.com');
         $this->assertNull($user);

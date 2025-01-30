@@ -5,6 +5,7 @@
 - Remove AUTH_PROVIDER env support, use HYVOR_FAKE (internal.fake) instead to mock all auth, billing, and resource
 - FakeProvider $DATABASE is no longer a const, rather a public property
 - FakeProvider renamed to AuthFake
+- fromIds, fromId, fromUsername, etc. methods are no longer available via AuthUser. Use Auth instead.
 
 ## 1.1.x - 2024-08-05
 

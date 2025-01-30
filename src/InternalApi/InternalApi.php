@@ -3,9 +3,10 @@
 namespace Hyvor\Internal\InternalApi;
 
 use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
+use Hyvor\Internal\InternalApi\Exceptions\InvalidMessageException;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 
@@ -29,9 +30,7 @@ class InternalApi
          */
         string $endpoint,
         array $data = []
-    ) : array
-    {
-
+    ): array {
         if (is_string($method)) {
             $method = InternalApiMethod::from($method);
         }
@@ -50,10 +49,13 @@ class InternalApi
 
         try {
             $response = Http::
-                withHeaders($headers)
-                ->$methodFunction($url, [
-                    'message' => $message,
-                ]);
+            withHeaders($headers)
+                ->$methodFunction(
+                    $url,
+                    [
+                        'message' => $message,
+                    ]
+                );
         } catch (ConnectionException $e) {
             throw new InternalApiCallFailedException(
                 'Internal API call to ' . $url . ' failed. Connection error: ' . $e->getMessage(),
@@ -68,17 +70,15 @@ class InternalApi
             );
         }
 
-        return (array) $response->json();
-
+        return (array)$response->json();
     }
 
     /**
      * @param array<mixed> $data
      * @throws \Exception
      */
-    public static function messageFromData(array $data) : string
+    public static function messageFromData(array $data): string
     {
-
         $json = json_encode([
             'data' => $data,
             'timestamp' => time(),
@@ -88,13 +88,53 @@ class InternalApi
         }
 
         return Crypt::encryptString($json);
+    }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public static function dataFromMessage(
+        string $message,
+        bool $validateTimestamp = true
+    ): array {
+        try {
+            $decodedMessage = Crypt::decryptString($message);
+        } catch (DecryptException) {
+            throw new InvalidMessageException('Failed to decrypt message');
+        }
+
+        $decodedMessage = json_decode($decodedMessage, true);
+
+        if (!is_array($decodedMessage)) {
+            throw new InvalidMessageException('Invalid data');
+        }
+
+        $timestamp = $decodedMessage['timestamp'] ?? null;
+
+        if (!is_int($timestamp)) {
+            throw new InvalidMessageException('Invalid timestamp');
+        }
+
+        if ($validateTimestamp) {
+            $diff = time() - $timestamp;
+            if ($diff > 60) {
+                throw new InvalidMessageException('Expired message');
+            }
+        }
+
+        $requestData = $decodedMessage['data'] ?? [];
+
+        if (!is_array($requestData)) {
+            throw new InvalidMessageException('Data is not an array');
+        }
+
+        return $requestData;
     }
 
     /**
      * Helper to get the requesting component from a request
      */
-    public static function getRequestingComponent(Request $request) : ComponentType
+    public static function getRequestingComponent(Request $request): ComponentType
     {
         $from = $request->header('X-Internal-Api-From');
         assert(is_string($from));

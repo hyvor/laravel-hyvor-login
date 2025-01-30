@@ -5,6 +5,8 @@ namespace Hyvor\Internal\InternalApi\Middleware;
 use Closure;
 use Hyvor\Internal\Http\Exceptions\HttpException;
 use Hyvor\Internal\InternalApi\ComponentType;
+use Hyvor\Internal\InternalApi\Exceptions\InvalidMessageException;
+use Hyvor\Internal\InternalApi\InternalApi;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -12,9 +14,8 @@ use Illuminate\Support\Facades\Crypt;
 class InternalApiMiddleware
 {
 
-    public function handle(Request $request, Closure $next) : mixed
+    public function handle(Request $request, Closure $next): mixed
     {
-
         $toHeader = $request->header('X-Internal-Api-To');
 
         if (
@@ -31,33 +32,9 @@ class InternalApiMiddleware
         }
 
         try {
-            $data = Crypt::decryptString($message);
-        } catch (DecryptException $exception) {
-            throw new HttpException('Failed to decrypt message');
-        }
-
-        $data = json_decode($data, true);
-
-        if (!is_array($data)) {
-            throw new HttpException('Invalid data');
-        }
-
-        $timestamp = $data['timestamp'] ?? null;
-
-        if (!is_int($timestamp)) {
-            throw new HttpException('Invalid timestamp');
-        }
-
-        $diff = time() - $timestamp;
-
-        if ($diff > 60) {
-            throw new HttpException('Expired message');
-        }
-
-        $requestData = $data['data'] ?? [];
-
-        if (!is_array($requestData)) {
-            throw new HttpException('Invalid data');
+            $requestData = InternalApi::dataFromMessage($message);
+        } catch (InvalidMessageException $exception) {
+            throw new HttpException($exception->getMessage());
         }
 
         $request->replace($requestData);

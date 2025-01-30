@@ -1,10 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Hyvor\Internal\Auth;
-
-use Hyvor\Internal\Auth\Providers\CurrentProvider;
-use Illuminate\Support\Collection;
 
 /**
  * @phpstan-type AuthUserArray array{
@@ -65,48 +63,6 @@ class AuthUser
             bio: $data['bio'] ?? null,
             website_url: $data['website_url'] ?? null,
         );
-    }
-
-    /**
-     * @param iterable<int> $ids
-     * @return Collection<int, self>
-     */
-    public static function fromIds(iterable $ids)
-    {
-        return CurrentProvider::get()->fromIds($ids);
-    }
-
-    public static function fromId(int $id): ?self
-    {
-        return CurrentProvider::get()->fromId($id);
-    }
-
-    /**
-     * @param iterable<string> $usernames
-     * @return Collection<string, AuthUser>
-     */
-    public static function fromUsernames(iterable $usernames)
-    {
-        return CurrentProvider::get()->fromUsernames($usernames);
-    }
-
-    public static function fromUsername(string $username): ?self
-    {
-        return CurrentProvider::get()->fromUsername($username);
-    }
-
-    /**
-     * @param iterable<string> $emails
-     * @return Collection<string, AuthUser>
-     */
-    public static function fromEmails(iterable $emails)
-    {
-        return CurrentProvider::get()->fromEmails($emails);
-    }
-
-    public static function fromEmail(string $email): ?self
-    {
-        return CurrentProvider::get()->fromEmail($email);
     }
 
 }

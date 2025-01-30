@@ -16,14 +16,14 @@ class InternalApiTesting
      * @param array<mixed> $data
      * @param InternalApiMethod|'GET'|'POST' $method
      * @deprecated Use CallsInternalAPI trait instead
+     * @deprecated
      */
     public static function call(
         InternalApiMethod|string $method,
-        string                   $endpoint,
-        array                    $data = [],
-        ?ComponentType           $from = null,
-    ): never
-    {
+        string $endpoint,
+        array $data = [],
+        ?ComponentType $from = null,
+    ): never {
         throw new \Exception('This method is deprecated. Use the CallsInternalAPI trait instead');
     }
 

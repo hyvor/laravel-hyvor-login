@@ -2,13 +2,19 @@
 
 namespace Hyvor\Internal\Tests\Feature\Auth;
 
+use Hyvor\Internal\Auth\Auth;
+use Hyvor\Internal\Auth\AuthFake;
 use Hyvor\Internal\Auth\AuthUser;
-use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Support\Collection;
 
 class AuthUserTest extends TestCase
 {
+
+    private function getAuth(): Auth
+    {
+        return app(Auth::class);
+    }
 
     public function testIsCreatedFromArray(): void
     {
@@ -34,7 +40,7 @@ class AuthUserTest extends TestCase
     public function testFromIds(): void
     {
         AuthFake::enable();
-        $users = AuthUser::fromIds([1, 2]);
+        $users = $this->getAuth()->fromIds([1, 2]);
 
         $this->assertInstanceOf(Collection::class, $users);
         $this->assertCount(2, $users);
@@ -42,7 +48,7 @@ class AuthUserTest extends TestCase
         $this->assertEquals(1, $users->first()->id);
         $this->assertEquals(2, $users->last()?->id);
 
-        $user = AuthUser::fromId(3);
+        $user = $this->getAuth()->fromId(3);
 
         $this->assertInstanceOf(AuthUser::class, $user);
         $this->assertEquals(3, $user->id);
@@ -52,7 +58,7 @@ class AuthUserTest extends TestCase
     public function testFromUsernames(): void
     {
         AuthFake::enable();
-        $users = AuthUser::fromUsernames(['johndoe', 'janedoe']);
+        $users = $this->getAuth()->fromUsernames(['johndoe', 'janedoe']);
 
         $this->assertInstanceOf(Collection::class, $users);
         $this->assertCount(2, $users);
@@ -60,7 +66,7 @@ class AuthUserTest extends TestCase
         $this->assertEquals('johndoe', $users->first()->username);
         $this->assertEquals('janedoe', $users->last()?->username);
 
-        $user = AuthUser::fromUsername('jimdoe');
+        $user = $this->getAuth()->fromUsername('jimdoe');
 
         $this->assertInstanceOf(AuthUser::class, $user);
         $this->assertEquals('jimdoe', $user->username);
@@ -69,7 +75,7 @@ class AuthUserTest extends TestCase
     public function testFromEmails(): void
     {
         AuthFake::enable();
-        $users = AuthUser::fromEmails(['johndoe@hyvor.com', 'janedoe@hyvor.com']);
+        $users = $this->getAuth()->fromEmails(['johndoe@hyvor.com', 'janedoe@hyvor.com']);
 
         $this->assertInstanceOf(Collection::class, $users);
         $this->assertCount(2, $users);
@@ -78,7 +84,7 @@ class AuthUserTest extends TestCase
         $this->assertEquals('johndoe@hyvor.com', $users->first()->email);
         $this->assertEquals('janedoe@hyvor.com', $users->last()?->email);
 
-        $user = AuthUser::fromEmail('jimdoe@hyvor.com');
+        $user = $this->getAuth()->fromEmail('jimdoe@hyvor.com');
 
         $this->assertInstanceOf(AuthUser::class, $user);
         $this->assertEquals('jimdoe@hyvor.com', $user->email);

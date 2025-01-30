@@ -165,7 +165,7 @@ emails, and usernames. This is useful for testing. You may also set a database o
 specific data for specific users as follows:
 
 ```php
-use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
+use Hyvor\Internal\Auth\AuthFake;
 
 it('adds names to the email', function() {
 

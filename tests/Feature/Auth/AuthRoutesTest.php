@@ -2,7 +2,7 @@
 
 namespace Hyvor\Internal\Tests\Feature\Auth;
 
-use Hyvor\Internal\Auth\Providers\Fake\AuthFake;
+use Hyvor\Internal\Auth\AuthFake;
 use Hyvor\Internal\InternalServiceProvider;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Routing\RouteCollection;
@@ -24,10 +24,6 @@ class AuthRoutesTest extends TestCase
 
     public function testCheckWhenNotLoggedIn(): void
     {
-        config([
-            'internal.auth.fake.user_id' => null
-        ]);
-
         $this
             ->post('/api/auth/check')
             ->assertJsonPath('is_logged_in', false)
@@ -46,8 +42,6 @@ class AuthRoutesTest extends TestCase
 
     public function testRedirects(): void
     {
-        config(['internal.auth.provider' => 'hyvor']);
-
         $this
             ->get('/api/auth/login')
             ->assertRedirectContains('https://hyvor.com/login?redirect=');

@@ -1,19 +1,14 @@
 <?php
 
-namespace Hyvor\Internal\Auth\Providers\Fake;
+namespace Hyvor\Internal\Auth;
 
 use Faker\Factory;
-use Hyvor\Internal\Auth\AuthUser;
-use Hyvor\Internal\Auth\Providers\CurrentProvider;
-use Hyvor\Internal\Auth\Providers\AuthProviderInterface;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 
 /**
  * @phpstan-import-type AuthUserArrayPartial from AuthUser
  */
-class AuthFake implements AuthProviderInterface
+final class AuthFake extends Auth
 {
 
     /**
@@ -39,27 +34,15 @@ class AuthFake implements AuthProviderInterface
             $user = self::generateUser($user);
         }
         $fake->user = $user;
-        CurrentProvider::set($fake);
+        app()->singleton(
+            Auth::class,
+            fn() => $fake
+        );
     }
 
     public function check(): false|AuthUser
     {
         return $this->user ?: false;
-    }
-
-    public function login(?string $redirect = null): RedirectResponse|Redirector
-    {
-        return redirect();
-    }
-
-    public function signup(?string $redirect = null): RedirectResponse|Redirector
-    {
-        return redirect();
-    }
-
-    public function logout(?string $redirect = null): RedirectResponse|Redirector
-    {
-        return redirect();
     }
 
     /**
@@ -143,7 +126,7 @@ class AuthFake implements AuthProviderInterface
      */
     public static function databaseSet(iterable $users = []): void
     {
-        $fake = CurrentProvider::get();
+        $fake = app(Auth::class);
         assert($fake instanceof self);
 
         $fake->userDatabase = collect($users)
@@ -160,17 +143,14 @@ class AuthFake implements AuthProviderInterface
      */
     public static function databaseGet(): ?Collection
     {
-        $fake = CurrentProvider::get();
+        $fake = app(Auth::class);
         assert($fake instanceof self);
         return $fake->userDatabase;
     }
 
-    /**
-     * @deprecated Database automatically cleared now since the use of app container
-     */
     public static function databaseClear(): void
     {
-        $fake = CurrentProvider::get();
+        $fake = app(Auth::class);
         assert($fake instanceof self);
         $fake->userDatabase = null;
     }
@@ -180,7 +160,7 @@ class AuthFake implements AuthProviderInterface
      */
     public static function databaseAdd($user): void
     {
-        $fake = CurrentProvider::get();
+        $fake = app(Auth::class);
         assert($fake instanceof self);
         if ($fake->userDatabase === null) {
             $fake->userDatabase = collect([]);
