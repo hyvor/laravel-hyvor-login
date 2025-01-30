@@ -8,16 +8,23 @@ use TiMacDonald\Log\LogEntry;
 class LogFake
 {
 
-    /**
-     * Run this function to fake the log.
-     */
-    public static function fake(): void
+    public static function enable(): void
     {
         if (!app()->environment('testing')) {
             throw new \Exception('Cannot fake log in non-testing environment');
         }
 
         \TiMacDonald\Log\LogFake::bind();
+    }
+
+    /**
+     * Run this function to fake the log.
+     * @deprecated use enable()
+     * @codeCoverageIgnore
+     */
+    public static function fake(): void
+    {
+        self::enable();
     }
 
     /**

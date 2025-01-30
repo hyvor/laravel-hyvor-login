@@ -26,7 +26,7 @@ namespace Hyvor\Internal\Tests\Unit\Util\Transfer {
         public string $name;
     }
 
-    class SomeBadClass
+    class SomeBadClassForSerialization
     {
         public int $id;
         public string $name;
@@ -76,7 +76,7 @@ namespace Hyvor\Internal\Tests\Unit\Util\Transfer {
             $this->expectException(\AssertionError::class);
             $this->expectExceptionMessage('Invalid token: expected static');
 
-            $serialized = serialize(new SomeBadClass());
+            $serialized = serialize(new SomeBadClassForSerialization());
             PleaseSerializeMe::unserialize($serialized);
         }
 

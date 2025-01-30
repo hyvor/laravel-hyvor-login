@@ -82,7 +82,9 @@ class InternalServiceProvider extends ServiceProvider
         // assert() should always throw an exception
         // docs: https://www.php.net/manual/en/function.assert.php
         if (ini_get('zend.assertions') !== '1') {
+            // @codeCoverageIgnoreStart
             throw new \RuntimeException('zend.assertions must be set to 1');
+            // @codeCoverageIgnoreEnd
         }
     }
 
