@@ -5,7 +5,7 @@ namespace Hyvor\Internal\Billing\License\Plan;
 use Hyvor\Internal\Billing\License\License;
 
 /**
- * @template T of License
+ * @template T of License = License
  */
 class Plan
 {
