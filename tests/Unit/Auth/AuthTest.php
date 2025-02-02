@@ -139,7 +139,7 @@ class AuthTest extends TestCase
 
         Http::assertSent(function (Request $request) {
             $data = InternalApi::dataFromMessage($request->data()['message']);
-            return $data['ids'] === '1,2';
+            return $data['ids'] === [1, 2];
         });
     }
 
@@ -168,7 +168,7 @@ class AuthTest extends TestCase
 
         Http::assertSent(function (Request $request) {
             $data = InternalApi::dataFromMessage($request->data()['message']);
-            return $data['ids'] === '1';
+            return $data['ids'] === [1];
         });
     }
 
@@ -219,7 +219,7 @@ class AuthTest extends TestCase
 
         Http::assertSent(function (Request $request) {
             $data = InternalApi::dataFromMessage($request->data()['message']);
-            return $data['usernames'] === 'test,test2';
+            return $data['usernames'] === ['test', 'test2'];
         });
     }
 
@@ -246,7 +246,7 @@ class AuthTest extends TestCase
 
         Http::assertSent(function (Request $request) {
             $data = InternalApi::dataFromMessage($request->data()['message']);
-            return $data['usernames'] === 'test';
+            return $data['usernames'] === ['test'];
         });
     }
 
@@ -297,7 +297,7 @@ class AuthTest extends TestCase
 
         Http::assertSent(function (Request $request) {
             $data = InternalApi::dataFromMessage($request->data()['message']);
-            return $data['emails'] === 'test@hyvor.com,test2@hyvor.com';
+            return $data['emails'] === ['test@hyvor.com', 'test2@hyvor.com'];
         });
     }
 
@@ -324,7 +324,7 @@ class AuthTest extends TestCase
 
         Http::assertSent(function (Request $request) {
             $data = InternalApi::dataFromMessage($request->data()['message']);
-            return $data['emails'] === 'test@hyvor.com';
+            return $data['emails'] === ['test@hyvor.com'];
         });
     }
 

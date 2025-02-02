@@ -94,7 +94,7 @@ class Auth
      * @template T of int|string
      * @param 'ids'|'emails'|'usernames' $field
      * @param iterable<T> $values
-     * @return Collection<T, AuthUser>
+     * @return Collection<T, AuthUser> keyed by the field
      */
     protected function getUsersByField(string $field, iterable $values): Collection
     {
@@ -103,7 +103,7 @@ class Auth
             InternalApiMethod::POST,
             '/auth/users/from/' . $field,
             [
-                $field => implode(',', (array)$values)
+                $field => (array)$values
             ]
         );
 

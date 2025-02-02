@@ -1,4 +1,4 @@
-## 2.0.0 - 2025-02-02
+## 2.0.1 - 2025-02-02
 
 - Adds support to billing and resource APIs
 - HasUser trait is now removed due to unintended side effects
@@ -7,6 +7,7 @@
 - FakeProvider $DATABASE is no longer a const, rather a public property
 - FakeProvider renamed to AuthFake
 - fromIds, fromId, fromUsername, etc. methods are no longer available via AuthUser. Use Auth instead.
+- Auth API now uses core's internal API instead of the special Auth API
 
 ## 1.1.x - 2024-08-05
 
