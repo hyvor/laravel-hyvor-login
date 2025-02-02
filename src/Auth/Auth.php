@@ -2,31 +2,155 @@
 
 namespace Hyvor\Internal\Auth;
 
-use Hyvor\Internal\Auth\Providers\CurrentProvider;
+use Hyvor\Internal\InternalApi\ComponentType;
+use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
+use Hyvor\Internal\InternalApi\InstanceUrl;
+use Hyvor\Internal\InternalApi\InternalApi;
+use Hyvor\Internal\InternalApi\InternalApiMethod;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Collection;
 
+/**
+ * @phpstan-import-type AuthUserArray from AuthUser
+ */
 class Auth
 {
 
-    public static function check() : false|AuthUser
+    public const HYVOR_SESSION_COOKIE_NAME = 'authsess';
+
+    /**
+     * @throws InternalApiCallFailedException
+     */
+    public function check(): false|AuthUser
     {
-        return CurrentProvider::getImplementation()->check();
+        $cookie = $_COOKIE[self::HYVOR_SESSION_COOKIE_NAME] ?? null;
+
+        if (!$cookie) {
+            return false;
+        }
+
+        $response = InternalApi::call(
+            ComponentType::CORE,
+            InternalApiMethod::POST,
+            '/auth/check',
+            [
+                'cookie' => $cookie
+            ]
+        );
+
+        /** @var null|AuthUserArray $user */
+        $user = $response['user'];
+
+        return is_array($user) ? AuthUser::fromArray($user) : false;
     }
 
-    public static function login(?string $redirect = null) : RedirectResponse|Redirector
-    {
-        return CurrentProvider::getImplementation()->login($redirect);
+    private function redirectTo(
+        string $page,
+        ?string $redirectPage = null
+    ): RedirectResponse {
+        $pos = strpos($page, '?');
+        $placeholder = $pos === false ? '?' : '&';
+
+        /** @var Request $request */
+        $request = request();
+
+        if ($redirectPage === null) {
+            $redirectPage = $request->getPathInfo();
+        }
+
+        $redirectUrl = $redirectPage && str_starts_with($redirectPage, 'https://')
+            ? $redirectPage
+            : $request->getSchemeAndHttpHost() . $redirectPage;
+
+        $redirect = $placeholder . 'redirect=' .
+            urlencode($redirectUrl);
+
+        return redirect(
+            InstanceUrl::getInstanceUrl() .
+            '/' .
+            $page .
+            $redirect
+        );
     }
 
-    public static function signup(?string $redirect = null) : RedirectResponse|Redirector
+    public function login(?string $redirect = null): RedirectResponse|Redirector
     {
-        return CurrentProvider::getImplementation()->signup($redirect);
+        return $this->redirectTo('login', $redirect);
     }
 
-    public static function logout(?string $redirect = null) : RedirectResponse|Redirector
+    public function signup(?string $redirect = null): RedirectResponse|Redirector
     {
-        return CurrentProvider::getImplementation()->logout($redirect);
+        return $this->redirectTo('signup', $redirect);
+    }
+
+    public function logout(?string $redirect = null): RedirectResponse|Redirector
+    {
+        return $this->redirectTo('logout', $redirect);
+    }
+
+    /**
+     * @template T of int|string
+     * @param 'ids'|'emails'|'usernames' $field
+     * @param iterable<T> $values
+     * @return Collection<T, AuthUser>
+     */
+    protected function getUsersByField(string $field, iterable $values): Collection
+    {
+        $response = InternalApi::call(
+            ComponentType::CORE,
+            InternalApiMethod::POST,
+            '/auth/users/from/' . $field,
+            [
+                $field => implode(',', (array)$values)
+            ]
+        );
+
+        $users = collect($response);
+        return $users->map(fn($user) => AuthUser::fromArray($user));
+    }
+
+    /**
+     * @param iterable<int> $ids
+     * @return Collection<int, AuthUser>
+     */
+    public function fromIds(iterable $ids)
+    {
+        return $this->getUsersByField('ids', $ids);
+    }
+
+    public function fromId(int $id): ?AuthUser
+    {
+        return $this->fromIds([$id])->get($id);
+    }
+
+    /**
+     * @param iterable<string> $emails
+     * @return Collection<string, AuthUser>
+     */
+    public function fromEmails(iterable $emails)
+    {
+        return $this->getUsersByField('emails', $emails);
+    }
+
+    public function fromEmail(string $email): ?AuthUser
+    {
+        return $this->fromEmails([$email])->get($email);
+    }
+
+    /**
+     * @param iterable<string> $usernames
+     * @return Collection<string, AuthUser>
+     */
+    public function fromUsernames(iterable $usernames)
+    {
+        return $this->getUsersByField('usernames', $usernames);
+    }
+
+    public function fromUsername(string $username): ?AuthUser
+    {
+        return $this->fromUsernames([$username])->get($username);
     }
 
 }

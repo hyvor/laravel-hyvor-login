@@ -3,24 +3,51 @@
 namespace Hyvor\Internal\Tests\Unit\Internationalization;
 
 use Hyvor\Internal\Internationalization\I18n;
+use Hyvor\Internal\Tests\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use RuntimeException;
 
-beforeEach(function() {
-    config(['internal.i18n.folder' => __DIR__ . '/locales']);
-});
+#[CoversClass(I18n::class)]
+class I18nTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['internal.i18n.folder' => __DIR__ . '/locales']);
+    }
 
-it('i18n works', function() {
-    $i18n = app(I18n::class);
-    expect($i18n->getAvailableLocales())->toBe(['en-US', 'es', 'fr-FR']);
-    expect($i18n->getLocaleStrings('en-US')['name'])->toBe('HYVOR');
-});
+    public function testI18nWorks(): void
+    {
+        $i18n = app(I18n::class);
+        $this->assertEquals(['en-US', 'es', 'fr-FR'], $i18n->getAvailableLocales());
+        $this->assertEquals('HYVOR', $i18n->getLocaleStrings('en-US')['name']);
+        $this->assertIsArray($i18n->getDefaultLocaleStrings());
+    }
 
-it('throws on cant read', function() {
-    $i18n = app(I18n::class);
-    $i18n->getLocaleStrings('es');
-})->throws(RuntimeException::class, 'Could not read the locale file of es');
+    public function testWhenFolderIsMissing(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not read the locales folder');
 
-it('when locale not found', function() {
-    $i18n = app(I18n::class);
-    $i18n->getLocaleStrings('pb');
-})->throws(RuntimeException::class, 'Locale pb not found');
+        config(['internal.i18n.folder' => '/missing-folder']);
+        $i18n = app(I18n::class);
+    }
+
+    public function testThrowsOnCantRead(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not read the locale file of es');
+
+        $i18n = app(I18n::class);
+        $i18n->getLocaleStrings('es');
+    }
+
+    public function testWhenLocaleNotFound(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Locale pb not found');
+
+        $i18n = app(I18n::class);
+        $i18n->getLocaleStrings('pb');
+    }
+}

@@ -10,9 +10,9 @@ use Illuminate\Http\Request;
 class AuthMiddleware
 {
 
-    public function handle(Request $request, Closure $next) : mixed
+    public function handle(Request $request, Closure $next): mixed
     {
-        $user = Auth::check();
+        $user = app(Auth::class)->check();
 
         if (!$user) {
             throw new HttpException('Unauthorized', 401);

@@ -3,10 +3,17 @@
 namespace Hyvor\Internal\Tests\Unit\Http\Exceptions;
 
 use Hyvor\Internal\Http\Exceptions\HttpException;
+use Hyvor\Internal\Tests\TestCase;
 
-it('creates with data', function() {
-    $exception = new HttpException('message', 1001, ['key' => 'value']);
-    expect($exception->getMessage())->toBe('message');
-    expect($exception->getCode())->toBe(1001);
-    expect($exception->data)->toBe(['key' => 'value']);
-});
+class HttpExceptionTest extends TestCase
+{
+
+    public function testCreatesWithData(): void
+    {
+        $exception = new HttpException('message', 1001, ['key' => 'value']);
+        $this->assertEquals('message', $exception->getMessage());
+        $this->assertEquals(1001, $exception->getCode());
+        $this->assertEquals(['key' => 'value'], $exception->data);
+    }
+
+}

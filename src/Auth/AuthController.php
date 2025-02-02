@@ -11,9 +11,14 @@ use Illuminate\Support\Facades\Response;
 class AuthController
 {
 
-    public function check() : JsonResponse
+    private function getAuth(): Auth
     {
-        $user = Auth::check();
+        return app(Auth::class);
+    }
+
+    public function check(): JsonResponse
+    {
+        $user = $this->getAuth()->check();
 
         return Response::json([
             'is_logged_in' => $user !== false,
@@ -21,22 +26,22 @@ class AuthController
         ]);
     }
 
-    public function login(Request $request) : RedirectResponse|Redirector
+    public function login(Request $request): RedirectResponse|Redirector
     {
-        return Auth::login($this->getRedirect($request));
+        return $this->getAuth()->login($this->getRedirect($request));
     }
 
-    public function signup(Request $request) : RedirectResponse|Redirector
+    public function signup(Request $request): RedirectResponse|Redirector
     {
-        return Auth::signup($this->getRedirect($request));
+        return $this->getAuth()->signup($this->getRedirect($request));
     }
 
-    public function logout(Request $request) : RedirectResponse|Redirector
+    public function logout(Request $request): RedirectResponse|Redirector
     {
-        return Auth::logout($this->getRedirect($request));
+        return $this->getAuth()->logout($this->getRedirect($request));
     }
 
-    private function getRedirect(Request $request) : ?string
+    private function getRedirect(Request $request): ?string
     {
         return $request->get('redirect') ?? null;
     }

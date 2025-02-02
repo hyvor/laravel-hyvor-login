@@ -1,34 +1,49 @@
 <?php
 
-namespace Hyvor\Internal\Tests\Feature;
+namespace Hyvor\Internal\Tests\Feature\Auth;
 
 use Hyvor\Internal\Auth\Auth;
+use Hyvor\Internal\Auth\AuthFake;
+use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Http\RedirectResponse;
 
-it('checks', function() {
-    expect(Auth::check()->id)->toBe(1);
+class AuthTest extends TestCase
+{
 
-    config(['internal.auth.fake.user_id' => 2]);
-    expect(Auth::check()->id)->toBe(2);
+    private function getAuth(): Auth
+    {
+        return app(Auth::class);
+    }
 
-    config(['internal.auth.fake.user_id' => null]);
-    expect(Auth::check())->toBeFalse();
-});
+    public function testChecks(): void
+    {
+        AuthFake::enable(['id' => 1]);
+        $user = $this->getAuth()->check();
+        $this->assertNotFalse($user);
+        $this->assertEquals(1, $user->id);
 
-it('redirects', function() {
+        AuthFake::enable(['id' => 2]);
+        $user = $this->getAuth()->check();
+        $this->assertNotFalse($user);
+        $this->assertEquals(2, $user->id);
 
-    config(['internal.auth.provider' => 'hyvor']);
+        AuthFake::enable(null);
+        $this->assertFalse($this->getAuth()->check());
+    }
 
-    $login = Auth::login();
-    expect($login)->toBeInstanceOf(RedirectResponse::class);
-    expect($login->getTargetUrl())->toStartWith('https://hyvor.com/login?redirect=');
+    public function testRedirects(): void
+    {
+        $login = $this->getAuth()->login();
+        $this->assertInstanceOf(RedirectResponse::class, $login);
+        $this->assertStringStartsWith('https://hyvor.com/login?redirect=', $login->getTargetUrl());
 
-    $signup = Auth::signup();
-    expect($signup)->toBeInstanceOf(RedirectResponse::class);
-    expect($signup->getTargetUrl())->toStartWith('https://hyvor.com/signup?redirect=');
+        $signup = $this->getAuth()->signup();
+        $this->assertInstanceOf(RedirectResponse::class, $signup);
+        $this->assertStringStartsWith('https://hyvor.com/signup?redirect=', $signup->getTargetUrl());
 
-    $logout = Auth::logout();
-    expect($logout)->toBeInstanceOf(RedirectResponse::class);
-    expect($logout->getTargetUrl())->toStartWith('https://hyvor.com/logout?redirect=');
+        $logout = $this->getAuth()->logout();
+        $this->assertInstanceOf(RedirectResponse::class, $logout);
+        $this->assertStringStartsWith('https://hyvor.com/logout?redirect=', $logout->getTargetUrl());
+    }
 
-});
+}

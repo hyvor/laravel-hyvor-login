@@ -1,0 +1,53 @@
+<?php
+
+namespace Hyvor\Internal\Tests\Unit\Resource;
+
+use Hyvor\Internal\InternalApi\InternalApi;
+use Hyvor\Internal\Resource\Resource;
+use Hyvor\Internal\Tests\TestCase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\CoversClass;
+
+#[CoversClass(Resource::class)]
+class ResourceTest extends TestCase
+{
+
+    public function testRegister(): void
+    {
+        Http::fake([
+            'https://hyvor.com/api/internal/resource/register' => Http::response()
+        ]);
+
+        $resource = new Resource();
+        $resource->register(10, 20);
+
+        Http::assertSent(function (Request $request) {
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            $this->assertEquals(10, $data['user_id']);
+            $this->assertEquals(20, $data['resource_id']);
+
+            $this->assertEquals('POST', $request->method());
+
+            return true;
+        });
+    }
+
+    public function testDelete(): void
+    {
+        Http::fake([
+            'https://hyvor.com/api/internal/resource/delete' => Http::response()
+        ]);
+
+        $resource = new Resource();
+        $resource->delete(25);
+
+        Http::assertSent(function (Request $request) {
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            $this->assertEquals(25, $data['resource_id']);
+            $this->assertEquals('POST', $request->method());
+            return true;
+        });
+    }
+
+}

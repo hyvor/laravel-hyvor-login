@@ -2,29 +2,50 @@
 
 namespace Hyvor\Internal\InternalApi;
 
-enum ComponentType : string
+use Hyvor\Internal\Billing\License\BlogsLicense;
+use Hyvor\Internal\Billing\License\CoreLicense;
+use Hyvor\Internal\Billing\License\License;
+use Hyvor\Internal\Billing\License\Plan\BlogsPlan;
+use Hyvor\Internal\Billing\License\Plan\CorePlan;
+use Hyvor\Internal\Billing\License\Plan\PlanAbstract;
+use Hyvor\Internal\Billing\License\Plan\TalkPlan;
+use Hyvor\Internal\Billing\License\TalkLicense;
+
+enum ComponentType: string
 {
     case CORE = 'core';
     case TALK = 'talk';
     case BLOGS = 'blogs';
 
+    public function name(): string
+    {
+        return match ($this) {
+            self::CORE => 'HYVOR',
+            self::TALK => 'Hyvor Talk',
+            self::BLOGS => 'Hyvor Blogs',
+        };
+    }
+
     /**
      * @deprecated
      * @codeCoverageIgnore
      */
-    public static function fromConfig() : self
+    public static function fromConfig(): self
     {
         $config = config('internal.component');
         return self::from($config);
     }
 
-    public static function current() : self
+    public static function current(): self
     {
         $config = config('internal.component');
         return self::from($config);
     }
 
-    public function getCoreUrl() : string
+    /**
+     * @deprecated Use InstanceUrl::componentUrl instead
+     */
+    public function getCoreUrl(): string
     {
         $currentUrl = config('internal.instance');
 
@@ -42,7 +63,10 @@ enum ComponentType : string
         }
     }
 
-    public function getUrlOfFrom(self $type) : string
+    /**
+     * @deprecated Use InstanceUrl::componentUrl instead
+     */
+    public function getUrlOfFrom(self $type): string
     {
 
         $coreUrl = $this->getCoreUrl();
@@ -62,9 +86,37 @@ enum ComponentType : string
 
     }
 
-    public static function getUrlOf(self $type) : string
+    /**
+     * @deprecated Use InstanceUrl::componentUrl instead
+     */
+    public static function getUrlOf(self $type): string
     {
         return self::current()->getUrlOfFrom($type);
+    }
+
+    /**
+     * @return class-string<License>
+     */
+    public function license(): string
+    {
+        return match ($this) {
+            self::CORE => CoreLicense::class,
+            self::TALK => TalkLicense::class,
+            self::BLOGS => BlogsLicense::class,
+        };
+    }
+
+    public function plans(): PlanAbstract
+    {
+
+        $class = match ($this) {
+            self::CORE => CorePlan::class,
+            self::TALK => TalkPlan::class,
+            self::BLOGS => BlogsPlan::class,
+        };
+
+        return new $class();
+
     }
 
 }

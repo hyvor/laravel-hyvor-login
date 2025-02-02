@@ -2,50 +2,80 @@
 
 namespace Hyvor\Internal\Tests\Unit\InternalApi;
 
+use Hyvor\Internal\Billing\License\Plan\BlogsPlan;
+use Hyvor\Internal\Billing\License\Plan\CorePlan;
+use Hyvor\Internal\Billing\License\Plan\TalkPlan;
 use Hyvor\Internal\InternalApi\ComponentType;
+use Hyvor\Internal\Tests\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-it('from config', function() {
-    config(['internal.component' => 'core']);
-    expect(ComponentType::current())->toBe(ComponentType::CORE);
+#[CoversClass(ComponentType::class)]
+class ComponentTypeTest extends TestCase
+{
 
-    config(['internal.component' => 'talk']);
-    expect(ComponentType::current())->toBe(ComponentType::TALK);
+    public function testName(): void
+    {
+        $this->assertEquals('HYVOR', ComponentType::CORE->name());
+        $this->assertEquals('Hyvor Talk', ComponentType::TALK->name());
+        $this->assertEquals('Hyvor Blogs', ComponentType::BLOGS->name());
+    }
 
-    config(['internal.component' => 'blogs']);
-    expect(ComponentType::current())->toBe(ComponentType::BLOGS);
+    public function testFromConfig(): void
+    {
+        config(['internal.component' => 'core']);
+        $this->assertEquals(ComponentType::current(), ComponentType::CORE);
 
-});
+        config(['internal.component' => 'talk']);
+        $this->assertEquals(ComponentType::current(), ComponentType::TALK);
 
-it('gets core url', function() {
-    config(['internal.instance' => 'https://hyvor.com']);
-    expect(ComponentType::CORE->getCoreUrl())->toBe('https://hyvor.com');
+        config(['internal.component' => 'blogs']);
+        $this->assertEquals(ComponentType::current(), ComponentType::BLOGS);
+    }
 
-    config(['internal.instance' => 'https://talk.hyvor.com']);
-    expect(ComponentType::TALK->getCoreUrl())->toBe('https://hyvor.com');
+    public function testGetCoreUrl(): void
+    {
+        config(['internal.instance' => 'https://hyvor.com']);
+        $this->assertEquals(ComponentType::CORE->getCoreUrl(), 'https://hyvor.com');
 
-    // externl
-    config(['internal.instance' => 'https://hyvor.mycompany.com']);
-    expect(ComponentType::CORE->getCoreUrl())->toBe('https://hyvor.mycompany.com');
+        config(['internal.instance' => 'https://talk.hyvor.com']);
+        $this->assertEquals(ComponentType::TALK->getCoreUrl(), 'https://hyvor.com');
 
-    // external product
-    config(['internal.instance' => 'https://talk.hyvor.mycompany.com']);
-    expect(ComponentType::TALK->getCoreUrl())->toBe('https://hyvor.mycompany.com');
+        // externl
+        config(['internal.instance' => 'https://hyvor.mycompany.com']);
+        $this->assertEquals(ComponentType::CORE->getCoreUrl(), 'https://hyvor.mycompany.com');
 
-});
+        // external product
+        config(['internal.instance' => 'https://talk.hyvor.mycompany.com']);
+        $this->assertEquals(ComponentType::TALK->getCoreUrl(), 'https://hyvor.mycompany.com');
+    }
 
-it('gets the URL', function() {
+    public function testGetTheUrl(): void
+    {
+        // core
+        $this->assertEquals(ComponentType::CORE->getUrlOf(ComponentType::TALK), 'https://talk.hyvor.com');
+        $this->assertEquals(ComponentType::CORE->getUrlOf(ComponentType::CORE), 'https://hyvor.com');
 
-    // core
-    expect(ComponentType::CORE->getUrlOf(ComponentType::TALK))->toBe('https://talk.hyvor.com');
-    expect(ComponentType::CORE->getUrlOf(ComponentType::CORE))->toBe('https://hyvor.com');
+        // product
+        $this->assertEquals(ComponentType::TALK->getUrlOf(ComponentType::CORE), 'https://hyvor.com');
+        $this->assertEquals(ComponentType::TALK->getUrlOf(ComponentType::BLOGS), 'https://blogs.hyvor.com');
 
-    // product
-    expect(ComponentType::TALK->getUrlOf(ComponentType::CORE))->toBe('https://hyvor.com');
-    expect(ComponentType::TALK->getUrlOf(ComponentType::BLOGS))->toBe('https://blogs.hyvor.com');
+        // other subdomain
+        config(['internal.instance' => 'https://hyvor.mycompany.com']);
+        $this->assertEquals(ComponentType::BLOGS->getUrlOf(ComponentType::CORE), 'https://hyvor.mycompany.com');
+        $this->assertEquals(ComponentType::BLOGS->getUrlOf(ComponentType::TALK), 'https://talk.hyvor.mycompany.com');
+    }
 
-    // other subdomain
-    config(['internal.instance' => 'https://hyvor.mycompany.com']);
-    expect(ComponentType::BLOGS->getUrlOf(ComponentType::CORE))->toBe('https://hyvor.mycompany.com');
-    expect(ComponentType::BLOGS->getUrlOf(ComponentType::TALK))->toBe('https://talk.hyvor.mycompany.com');
+    public function testPlans(): void
+    {
+        $plans = [
+            [ComponentType::CORE, CorePlan::class],
+            [ComponentType::TALK, TalkPlan::class],
+            [ComponentType::BLOGS, BlogsPlan::class],
+        ];
 
-});
+        foreach ($plans as $plan) {
+            $this->assertInstanceOf($plan[1], $plan[0]->plans());
+        }
+    }
+
+}

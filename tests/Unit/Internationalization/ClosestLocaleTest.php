@@ -3,21 +3,25 @@
 namespace Hyvor\Internal\Tests\Unit\Internationalization;
 
 use Hyvor\Internal\Internationalization\ClosestLocale;
-use function Pest\testDirectory;
+use Hyvor\Internal\Tests\TestCase;
 
-beforeEach(function() {
-    config(['internal.i18n.folder' => __DIR__ . '/locales']);
-});
+class ClosestLocaleTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['internal.i18n.folder' => __DIR__ . '/locales']);
+    }
 
-it('gets the closest locale', function() {
-
-    expect(ClosestLocale::get('en-US'))->toBe('en-US');
-    expect(ClosestLocale::get('en-GB'))->toBe('en-US');
-    expect(ClosestLocale::get('fr-FR'))->toBe('fr-FR');
-    expect(ClosestLocale::get('fr'))->toBe('fr-FR');
-    expect(ClosestLocale::get('es-ES'))->toBe('es');
-    expect(ClosestLocale::get('es-MX'))->toBe('es');
-    expect(ClosestLocale::get('pt'))->toBe('en-US');
-    expect(ClosestLocale::get('invalid'))->toBe('en-US');
-
-});
+    public function testGetsTheClosestLocale(): void
+    {
+        $this->assertEquals('en-US', ClosestLocale::get('en-US'));
+        $this->assertEquals('en-US', ClosestLocale::get('en-GB'));
+        $this->assertEquals('fr-FR', ClosestLocale::get('fr-FR'));
+        $this->assertEquals('fr-FR', ClosestLocale::get('fr'));
+        $this->assertEquals('es', ClosestLocale::get('es-ES'));
+        $this->assertEquals('es', ClosestLocale::get('es-MX'));
+        $this->assertEquals('en-US', ClosestLocale::get('pt'));
+        $this->assertEquals('en-US', ClosestLocale::get('invalid'));
+    }
+}

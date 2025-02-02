@@ -2,44 +2,58 @@
 
 namespace Hyvor\Internal\Tests\Unit\Internationalization;
 
+use Hyvor\Internal\Internationalization\Exceptions\FormatException;
 use Hyvor\Internal\Internationalization\Exceptions\InvalidStringKeyException;
 use Hyvor\Internal\Internationalization\Strings;
+use Hyvor\Internal\Tests\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-beforeEach(function() {
-    config(['internal.i18n.folder' => __DIR__ . '/locales']);
-});
+#[CoversClass(Strings::class)]
+class StringsTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['internal.i18n.folder' => __DIR__ . '/locales']);
+    }
 
-it('gets strings default', function() {
+    public function testGetsStringsDefault(): void
+    {
+        $locale = new Strings('en-US');
 
-    $locale = new Strings('en-US');
+        $this->assertEquals('HYVOR', $locale->get('name'));
+        $this->assertEquals('Hello, you!', $locale->get('greet', ['name' => 'you']));
+        $this->assertEquals('Sign up now', $locale->get('signup.cta'));
 
-    expect($locale->get('name'))->toBe('HYVOR');
-    expect($locale->get('greet', ['name' => 'you']))->toBe('Hello, you!');
-    expect($locale->get('signup.cta'))->toBe('Sign up now');
+        // closest locale
+        $locale = new Strings('en');
+        $this->assertEquals('HYVOR', $locale->get('name'));
+    }
 
-    // closest locale
-    $locale = new Strings('en');
-    expect($locale->get('name'))->toBe('HYVOR');
+    public function testGetsStringsNonDefault(): void
+    {
+        $locale = new Strings('fr-FR');
+        $this->assertEquals('Bonjour, you!', $locale->get('greet', ['name' => 'you']));
 
-});
+        // fallback
+        $this->assertEquals('HYVOR', $locale->get('name'));
+    }
 
-it('gets strings non-default', function() {
+    public function testMissingLocale(): void
+    {
+        $locale = new Strings('si');
+        $this->assertEquals('HYVOR', $locale->get('name'));
+    }
 
-    $locale = new Strings('fr-FR');
-    expect($locale->get('greet', ['name' => 'you']))->toBe('Bonjour, you!');
+    public function testThrowsOnInvalidKey(): void
+    {
+        $this->expectException(InvalidStringKeyException::class);
+        (new Strings('en-US'))->get('invalid-key');
+    }
 
-    // fallback
-    expect($locale->get('name'))->toBe('HYVOR');
-
-});
-
-it('missing locale', function() {
-
-    $locale = new Strings('si');
-    expect($locale->get('name'))->toBe('HYVOR');
-
-});
-
-it('throws on invalid key', function() {
-    (new Strings('en-US'))->get('invalid-key');
-})->throws(InvalidStringKeyException::class);
+    public function testWrongFormat(): void
+    {
+        $this->expectException(FormatException::class);
+        (new Strings('en-US'))->get('badKey');
+    }
+}

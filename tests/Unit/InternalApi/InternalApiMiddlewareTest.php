@@ -4,91 +4,110 @@ namespace Hyvor\Internal\Tests\Unit\InternalApi;
 
 use Hyvor\Internal\Http\Exceptions\HttpException;
 use Hyvor\Internal\InternalApi\Middleware\InternalApiMiddleware;
+use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Support\Facades\Crypt;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-it('decrypts message and sets request attributes', function() {
+#[CoversClass(InternalApiMiddleware::class)]
+class InternalApiMiddlewareTest extends TestCase
+{
+    public function testDecryptsMessageAndSetsRequestAttributes(): void
+    {
+        $request = new \Illuminate\Http\Request();
+        $request->replace([
+            'message' => Crypt::encryptString(
+                (string)json_encode([
+                    'data' => [
+                        'user_id' => 123,
+                        'ids' => [1, 2, 3],
+                    ],
+                    'timestamp' => time()
+                ])
+            )
+        ]);
+        $request->headers->set('X-Internal-Api-To', 'core');
 
-    $request = new \Illuminate\Http\Request();
-    $request->replace([
-        'message' => Crypt::encryptString(json_encode([
-            'data' => [
-                'user_id' => 123,
-                'ids' => [1, 2, 3],
-            ],
-            'timestamp' => time()
-        ]))
-    ]);
-    $request->headers->set('X-Internal-Api-To', 'core');
+        $middleware = new InternalApiMiddleware();
+        $middleware->handle($request, function ($request) {
+            $this->assertEquals(123, $request->user_id);
+            $this->assertEquals([1, 2, 3], $request->ids);
+        });
+    }
 
-    $middleware = new InternalApiMiddleware();
-    $middleware->handle($request, function ($request) {
-        expect($request->user_id)->toBe(123);
-        expect($request->ids)->toBe([1, 2, 3]);
-    });
-
-
-});
-
-describe('fail', function() {
-
-    it('rejects invalid to component', function() {
+    public function testRejectsInvalidToComponent(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Invalid to component');
+        $this->expectExceptionCode(403);
 
         $request = new \Illuminate\Http\Request();
         $request->headers->set('X-Internal-Api-To', 'talk');
 
         $middleware = new InternalApiMiddleware();
         $middleware->handle($request, fn() => null);
+    }
 
-    })->throws(HttpException::class, 'Invalid to component', 403);
-
-    it('on missing message', function() {
+    public function testOnMissingMessage(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Invalid message');
 
         $request = new \Illuminate\Http\Request();
         $request->headers->set('X-Internal-Api-To', 'core');
 
         $middleware = new InternalApiMiddleware();
         $middleware->handle($request, fn() => null);
+    }
 
-    })->throws(HttpException::class, 'Invalid message');
-
-    it('on missing timestamp', function() {
+    public function testOnMissingTimestamp(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Invalid timestamp');
 
         $request = new \Illuminate\Http\Request();
         $request->replace([
-            'message' => Crypt::encryptString(json_encode([
-                'data' => [
-                    'user_id' => 123,
-                    'ids' => [1, 2, 3],
-                ]
-            ]))
+            'message' => Crypt::encryptString(
+                (string)json_encode([
+                    'data' => [
+                        'user_id' => 123,
+                        'ids' => [1, 2, 3],
+                    ]
+                ])
+            )
         ]);
         $request->headers->set('X-Internal-Api-To', 'core');
 
         $middleware = new InternalApiMiddleware();
         $middleware->handle($request, fn() => null);
+    }
 
-    })->throws(HttpException::class, 'Invalid timestamp');
-
-    it('on expired message', function() {
+    public function testOnExpiredMessage(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Expired message');
 
         $request = new \Illuminate\Http\Request();
         $request->replace([
-            'message' => Crypt::encryptString(json_encode([
-                'data' => [
-                    'user_id' => 123,
-                    'ids' => [1, 2, 3],
-                ],
-                'timestamp' => time() - 65
-            ]))
+            'message' => Crypt::encryptString(
+                (string)json_encode([
+                    'data' => [
+                        'user_id' => 123,
+                        'ids' => [1, 2, 3],
+                    ],
+                    'timestamp' => time() - 65
+                ])
+            )
         ]);
         $request->headers->set('X-Internal-Api-To', 'core');
 
         $middleware = new InternalApiMiddleware();
         $middleware->handle($request, fn() => null);
+    }
 
-    })->throws(HttpException::class, 'Expired message');
-
-    it('on invalid message', function() {
+    public function testOnInvalidMessage(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Failed to decrypt message');
 
         $request = new \Illuminate\Http\Request();
         $request->replace([
@@ -98,11 +117,12 @@ describe('fail', function() {
 
         $middleware = new InternalApiMiddleware();
         $middleware->handle($request, fn() => null);
+    }
 
-    })->throws(HttpException::class, 'Failed to decrypt message');
-
-
-    it('on invalid data', function() {
+    public function testOnInvalidData(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessage('Invalid data');
 
         $request = new \Illuminate\Http\Request();
         $request->replace([
@@ -112,7 +132,5 @@ describe('fail', function() {
 
         $middleware = new InternalApiMiddleware();
         $middleware->handle($request, fn() => null);
-
-    })->throws(HttpException::class, 'Invalid data');
-
-});
+    }
+}
