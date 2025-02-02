@@ -17,6 +17,7 @@ namespace Hyvor\Internal\Tests\Unit\Util\Transfer {
 
     use Hyvor\Internal\Tests\TestCase;
     use Hyvor\Internal\Util\Transfer\Encryptable;
+    use PHPUnit\Framework\Attributes\CoversClass;
 
     class PleaseEncryptMe
     {
@@ -32,6 +33,7 @@ namespace Hyvor\Internal\Tests\Unit\Util\Transfer {
         public string $name;
     }
 
+    #[CoversClass(Encryptable::class)]
     class EncryptableTest extends TestCase
     {
 

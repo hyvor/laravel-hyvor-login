@@ -2,8 +2,11 @@
 
 namespace Hyvor\Internal\Tests\Unit\InternalApi;
 
+use Hyvor\Internal\InternalApi\Middleware\InternalApiFromMiddleware;
 use Hyvor\Internal\Tests\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
+#[CoversClass(InternalApiFromMiddleware::class)]
 class InternalApiFromMiddlewareTest extends TestCase
 {
     public function testDoesNotAllowMissingComponent(): void

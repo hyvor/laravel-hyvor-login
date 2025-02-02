@@ -4,6 +4,7 @@ namespace Hyvor\Internal\Tests\Unit\Auth;
 
 use Hyvor\Internal\Auth\Auth;
 use Hyvor\Internal\Auth\AuthFake;
+use Hyvor\Internal\Auth\AuthUser;
 use Hyvor\Internal\Tests\TestCase;
 
 class AuthFakeTest extends TestCase
@@ -53,6 +54,19 @@ class AuthFakeTest extends TestCase
         $this->assertNotNull($db);
         $this->assertCount(1, $db);
         $this->assertEquals('Jack', $db[0]->name);
+
+        AuthFake::databaseSet([
+            AuthUser::fromArray([
+                'id' => 1,
+                'name' => 'Supun',
+                'email' => 'supun@hyvor.com',
+                'username' => 'supun'
+            ])
+        ]);
+        $db = AuthFake::databaseGet();
+        $this->assertNotNull($db);
+        $this->assertEquals(1, $db[0]->id);
+        $this->assertEquals('Supun', $db[0]->name);
     }
 
     public function testFromId(): void

@@ -4,6 +4,7 @@ namespace Hyvor\Internal\Auth;
 
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
+use Hyvor\Internal\InternalApi\InstanceUrl;
 use Hyvor\Internal\InternalApi\InternalApi;
 use Hyvor\Internal\InternalApi\InternalApiMethod;
 use Illuminate\Http\RedirectResponse;
@@ -67,7 +68,7 @@ class Auth
             urlencode($redirectUrl);
 
         return redirect(
-            config('internal.auth.hyvor.url') .
+            InstanceUrl::getInstanceUrl() .
             '/' .
             $page .
             $redirect

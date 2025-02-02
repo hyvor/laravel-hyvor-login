@@ -10,7 +10,7 @@ class LogFake
 
     public static function enable(): void
     {
-        if (!app()->environment('testing')) {
+        if (config('app.env') !== 'testing') {
             throw new \Exception('Cannot fake log in non-testing environment');
         }
 
@@ -32,7 +32,7 @@ class LogFake
      */
     public static function assertLogged(
         string $level,
-        string $message = null,
+        ?string $message = null,
         ?array $context = null,
     ): void {
         // @phpstan-ignore-next-line

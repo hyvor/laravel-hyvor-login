@@ -6,20 +6,24 @@ use Hyvor\Internal\Http\Exceptions\HttpException;
 use Hyvor\Internal\InternalApi\Middleware\InternalApiMiddleware;
 use Hyvor\Internal\Tests\TestCase;
 use Illuminate\Support\Facades\Crypt;
+use PHPUnit\Framework\Attributes\CoversClass;
 
+#[CoversClass(InternalApiMiddleware::class)]
 class InternalApiMiddlewareTest extends TestCase
 {
     public function testDecryptsMessageAndSetsRequestAttributes(): void
     {
         $request = new \Illuminate\Http\Request();
         $request->replace([
-            'message' => Crypt::encryptString((string)json_encode([
-                'data' => [
-                    'user_id' => 123,
-                    'ids' => [1, 2, 3],
-                ],
-                'timestamp' => time()
-            ]))
+            'message' => Crypt::encryptString(
+                (string)json_encode([
+                    'data' => [
+                        'user_id' => 123,
+                        'ids' => [1, 2, 3],
+                    ],
+                    'timestamp' => time()
+                ])
+            )
         ]);
         $request->headers->set('X-Internal-Api-To', 'core');
 
@@ -62,12 +66,14 @@ class InternalApiMiddlewareTest extends TestCase
 
         $request = new \Illuminate\Http\Request();
         $request->replace([
-            'message' => Crypt::encryptString((string)json_encode([
-                'data' => [
-                    'user_id' => 123,
-                    'ids' => [1, 2, 3],
-                ]
-            ]))
+            'message' => Crypt::encryptString(
+                (string)json_encode([
+                    'data' => [
+                        'user_id' => 123,
+                        'ids' => [1, 2, 3],
+                    ]
+                ])
+            )
         ]);
         $request->headers->set('X-Internal-Api-To', 'core');
 
@@ -82,13 +88,15 @@ class InternalApiMiddlewareTest extends TestCase
 
         $request = new \Illuminate\Http\Request();
         $request->replace([
-            'message' => Crypt::encryptString((string)json_encode([
-                'data' => [
-                    'user_id' => 123,
-                    'ids' => [1, 2, 3],
-                ],
-                'timestamp' => time() - 65
-            ]))
+            'message' => Crypt::encryptString(
+                (string)json_encode([
+                    'data' => [
+                        'user_id' => 123,
+                        'ids' => [1, 2, 3],
+                    ],
+                    'timestamp' => time() - 65
+                ])
+            )
         ]);
         $request->headers->set('X-Internal-Api-To', 'core');
 

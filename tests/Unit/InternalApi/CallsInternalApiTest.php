@@ -2,9 +2,12 @@
 
 namespace Hyvor\Internal\Tests\Unit\InternalApi;
 
+use Hyvor\Internal\InternalApi\Testing\CallsInternalApi;
 use Hyvor\Internal\Tests\Case\InternalApiTestingCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-class InternalApiTestingTest extends InternalApiTestingCase
+#[CoversClass(CallsInternalApi::class)]
+class CallsInternalApiTest extends InternalApiTestingCase
 {
     public function testCallsSelf(): void
     {

@@ -29,7 +29,8 @@ class InternalApi
          * ex: set `/delete-user` to call `/api/internal/delete-user`
          */
         string $endpoint,
-        array $data = []
+        array $data = [],
+        ?ComponentType $from = null
     ): array {
         if (is_string($method)) {
             $method = InternalApiMethod::from($method);
@@ -42,8 +43,10 @@ class InternalApi
 
         $message = self::messageFromData($data);
 
+        $from ??= ComponentType::current();
+
         $headers = [
-            'X-Internal-Api-From' => ComponentType::current()->value,
+            'X-Internal-Api-From' => $from->value,
             'X-Internal-Api-To' => $to->value,
         ];
 
@@ -83,9 +86,7 @@ class InternalApi
             'data' => $data,
             'timestamp' => time(),
         ]);
-        if ($json === false) {
-            throw new \Exception('Failed to encode data to JSON');
-        }
+        assert(is_string($json));
 
         return Crypt::encryptString($json);
     }

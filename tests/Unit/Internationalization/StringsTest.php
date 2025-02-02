@@ -2,10 +2,13 @@
 
 namespace Hyvor\Internal\Tests\Unit\Internationalization;
 
+use Hyvor\Internal\Internationalization\Exceptions\FormatException;
 use Hyvor\Internal\Internationalization\Exceptions\InvalidStringKeyException;
 use Hyvor\Internal\Internationalization\Strings;
 use Hyvor\Internal\Tests\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
+#[CoversClass(Strings::class)]
 class StringsTest extends TestCase
 {
     protected function setUp(): void
@@ -46,5 +49,11 @@ class StringsTest extends TestCase
     {
         $this->expectException(InvalidStringKeyException::class);
         (new Strings('en-US'))->get('invalid-key');
+    }
+
+    public function testWrongFormat(): void
+    {
+        $this->expectException(FormatException::class);
+        (new Strings('en-US'))->get('badKey');
     }
 }

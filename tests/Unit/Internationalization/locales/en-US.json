@@ -3,5 +3,6 @@
     "greet": "Hello, {name}!",
     "signup": {
         "cta": "Sign up now"
-    }
+    },
+    "badKey": "Hello {name"
 }

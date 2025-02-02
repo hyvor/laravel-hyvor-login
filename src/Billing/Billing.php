@@ -63,7 +63,8 @@ class Billing
             [
                 'user_id' => $userId,
                 'resource_id' => $resourceId,
-            ]
+            ],
+            $component
         );
 
         /** @var ?string $license */

@@ -2,11 +2,23 @@
 
 namespace Hyvor\Internal\Tests\Unit\InternalApi;
 
+use Hyvor\Internal\Billing\License\Plan\BlogsPlan;
+use Hyvor\Internal\Billing\License\Plan\CorePlan;
+use Hyvor\Internal\Billing\License\Plan\TalkPlan;
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\Tests\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
+#[CoversClass(ComponentType::class)]
 class ComponentTypeTest extends TestCase
 {
+
+    public function testName(): void
+    {
+        $this->assertEquals('HYVOR', ComponentType::CORE->name());
+        $this->assertEquals('Hyvor Talk', ComponentType::TALK->name());
+        $this->assertEquals('Hyvor Blogs', ComponentType::BLOGS->name());
+    }
 
     public function testFromConfig(): void
     {
@@ -18,7 +30,6 @@ class ComponentTypeTest extends TestCase
 
         config(['internal.component' => 'blogs']);
         $this->assertEquals(ComponentType::current(), ComponentType::BLOGS);
-
     }
 
     public function testGetCoreUrl(): void
@@ -36,12 +47,10 @@ class ComponentTypeTest extends TestCase
         // external product
         config(['internal.instance' => 'https://talk.hyvor.mycompany.com']);
         $this->assertEquals(ComponentType::TALK->getCoreUrl(), 'https://hyvor.mycompany.com');
-
     }
 
     public function testGetTheUrl(): void
     {
-
         // core
         $this->assertEquals(ComponentType::CORE->getUrlOf(ComponentType::TALK), 'https://talk.hyvor.com');
         $this->assertEquals(ComponentType::CORE->getUrlOf(ComponentType::CORE), 'https://hyvor.com');
@@ -54,7 +63,19 @@ class ComponentTypeTest extends TestCase
         config(['internal.instance' => 'https://hyvor.mycompany.com']);
         $this->assertEquals(ComponentType::BLOGS->getUrlOf(ComponentType::CORE), 'https://hyvor.mycompany.com');
         $this->assertEquals(ComponentType::BLOGS->getUrlOf(ComponentType::TALK), 'https://talk.hyvor.mycompany.com');
+    }
 
+    public function testPlans(): void
+    {
+        $plans = [
+            [ComponentType::CORE, CorePlan::class],
+            [ComponentType::TALK, TalkPlan::class],
+            [ComponentType::BLOGS, BlogsPlan::class],
+        ];
+
+        foreach ($plans as $plan) {
+            $this->assertInstanceOf($plan[1], $plan[0]->plans());
+        }
     }
 
 }

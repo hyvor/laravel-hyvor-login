@@ -14,7 +14,6 @@ class InstanceUrl
 
     public function componentUrl(ComponentType $component): string
     {
-
         $instanceUrl = $this->url;
 
         if ($component === ComponentType::CORE) {
@@ -27,8 +26,6 @@ class InstanceUrl
 
             return $protocol . $subdomain . '.' . $coreHost;
         }
-
-
     }
 
     public static function create(?string $customUrl = null): self
@@ -41,6 +38,7 @@ class InstanceUrl
         return new self(self::getPrivateInstanceUrl());
     }
 
+    // instanceUrl = coreUrl
     public static function getInstanceUrl(): string
     {
         return config()->string('internal.instance');

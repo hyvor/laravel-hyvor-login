@@ -4,8 +4,11 @@ namespace Hyvor\Internal\Tests\Unit\Billing\Usage;
 
 use Hyvor\Internal\Billing\License\BlogsLicense;
 use Hyvor\Internal\Billing\License\DerivedFrom;
+use Hyvor\Internal\Billing\Usage\UsageAbstract;
 use Hyvor\Internal\Tests\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
+#[CoversClass(UsageAbstract::class)]
 class UsageAbstractTest extends TestCase
 {
 
@@ -23,7 +26,6 @@ class UsageAbstractTest extends TestCase
         $resourceLicense = (new BlogsLicense(storage: 100))->setDerivedFrom(DerivedFrom::CUSTOM_RESOURCE);
         $this->assertTrue($usage->hasReached($resourceLicense, 1, 1));
         $this->assertFalse($usage->hasExceeded($resourceLicense, 1, 1));
-
     }
 
 }

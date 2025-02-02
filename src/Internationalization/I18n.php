@@ -10,7 +10,7 @@ class I18n
 
     public string $folder;
 
-    /** @var string[]  */
+    /** @var string[] */
     public array $availableLocales;
 
     public string $defaultLocale;
@@ -21,25 +21,22 @@ class I18n
 
     public function __construct()
     {
-
         $config = config('internal.i18n');
 
         $this->folder = $config['folder'] ?? './locales';
         $this->availableLocales = $this->setAvailableLocales();
 
-        $this->defaultLocale = (string) ($config['default'] ?? 'en-US');
+        $this->defaultLocale = (string)($config['default'] ?? 'en-US');
         $this->stringsCache[$this->defaultLocale] = $this->getLocaleStrings($this->defaultLocale);
-
     }
 
     /**
      * @return array<string>
      */
-    private function setAvailableLocales() : array
+    private function setAvailableLocales(): array
     {
-
         $locales = [];
-        $files = scandir($this->folder);
+        $files = @scandir($this->folder);
 
         if ($files === false) {
             throw new RuntimeException('Could not read the locales folder');
@@ -51,13 +48,12 @@ class I18n
             }
         }
         return $locales;
-
     }
 
     /**
      * @return string[]
      */
-    public function getAvailableLocales() : array
+    public function getAvailableLocales(): array
     {
         return $this->availableLocales;
     }
@@ -65,9 +61,8 @@ class I18n
     /**
      * @return array<mixed>
      */
-    public function getLocaleStrings(string $locale) : array
+    public function getLocaleStrings(string $locale): array
     {
-
         if (isset($this->stringsCache[$locale])) {
             return $this->stringsCache[$locale];
         }
@@ -78,24 +73,20 @@ class I18n
             throw new RuntimeException("Locale $locale not found");
         }
 
-        if (!file_exists($file)) {
-            throw new RuntimeException('Locale file not found');
-        }
-
+        assert(file_exists($file));
         $json = file_get_contents($file);
 
         if (!$json) {
             throw new RuntimeException('Could not read the locale file of ' . $locale);
         }
 
-        return (array) json_decode($json, true);
-
+        return (array)json_decode($json, true);
     }
 
     /**
      * @return mixed[]
      */
-    public function getDefaultLocaleStrings() : array
+    public function getDefaultLocaleStrings(): array
     {
         return $this->stringsCache[$this->defaultLocale];
     }

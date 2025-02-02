@@ -32,12 +32,12 @@ class BillingFake extends Billing
     {
         $component ??= ComponentType::current();
 
-        if ($this->license instanceof License) {
-            return $this->license;
-        }
-
         if ($this->license === null) {
             return null;
+        }
+
+        if ($this->license instanceof License) {
+            return $this->license;
         }
 
         return ($this->license)($userId, $resourceId, $component);

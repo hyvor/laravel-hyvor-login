@@ -18,10 +18,11 @@ class Strings
 
     /**
      * @param array<mixed> $params
+     * @throws InvalidStringKeyException
+     * @throws FormatException
      */
-    public function get(string $key, array $params = []) : string
+    public function get(string $key, array $params = []): string
     {
-
         $i18n = app(I18n::class);
 
         $currentLocaleStrings = $i18n->getLocaleStrings($this->locale);
@@ -29,7 +30,6 @@ class Strings
         $string = $this->getFromDotNotation($currentLocaleStrings, $key);
 
         if ($string === null) {
-
             $defaultLocaleStrings = $i18n->getDefaultLocaleStrings();
             $string = $this->getFromDotNotation($defaultLocaleStrings, $key);
 
@@ -45,15 +45,13 @@ class Strings
         }
 
         return $formatted;
-
     }
 
     /**
      * @param array<mixed> $arr
      */
-    private function getFromDotNotation(array $arr, string $key) : ?string
+    private function getFromDotNotation(array $arr, string $key): ?string
     {
-
         $keys = explode('.', $key);
         $len = count($keys);
 
@@ -62,7 +60,7 @@ class Strings
                 break; // don't processs the last element
             } else {
                 if (!isset($arr[$key]) || !is_array($arr[$key])) {
-                    return null;
+                    return null; // @codeCoverageIgnore
                 }
                 $arr = $arr[$key];
             }
@@ -70,7 +68,6 @@ class Strings
 
         $val = $arr[$key] ?? null;
         return is_string($val) ? $val : null;
-
     }
 
 }

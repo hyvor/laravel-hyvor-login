@@ -33,8 +33,6 @@ class AuthTest extends TestCase
 
     public function testRedirects(): void
     {
-        config(['internal.auth.provider' => 'hyvor']);
-
         $login = $this->getAuth()->login();
         $this->assertInstanceOf(RedirectResponse::class, $login);
         $this->assertStringStartsWith('https://hyvor.com/login?redirect=', $login->getTargetUrl());

@@ -4,11 +4,16 @@ namespace Hyvor\Internal\Tests\Unit\InternalApi;
 
 use Hyvor\Internal\InternalApi\ComponentType;
 use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
+use Hyvor\Internal\InternalApi\Exceptions\InvalidMessageException;
 use Hyvor\Internal\InternalApi\InternalApi;
 use Hyvor\Internal\InternalApi\InternalApiMethod;
 use Hyvor\Internal\Tests\TestCase;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\CoversClass;
 
+#[CoversClass(InternalApi::class)]
 class InternalApiTest extends TestCase
 {
     public function testCallsTalkInternalApi(): void
@@ -79,7 +84,9 @@ class InternalApiTest extends TestCase
         ]);
 
         $this->expectException(InternalApiCallFailedException::class);
-        $this->expectExceptionMessage('Internal API call to https://talk.hyvor.com/api/internal/delete-user failed. Status code: 500 - {"success":false}');
+        $this->expectExceptionMessage(
+            'Internal API call to https://talk.hyvor.com/api/internal/delete-user failed. Status code: 500 - {"success":false}'
+        );
 
         InternalApi::call(
             ComponentType::TALK,
@@ -98,7 +105,9 @@ class InternalApiTest extends TestCase
         ]);
 
         $this->expectException(InternalApiCallFailedException::class);
-        $this->expectExceptionMessage('Internal API call to https://talk.hyvor.com/api/internal/delete-user failed. Connection error: Connection error');
+        $this->expectExceptionMessage(
+            'Internal API call to https://talk.hyvor.com/api/internal/delete-user failed. Connection error: Connection error'
+        );
 
         InternalApi::call(
             ComponentType::TALK,
@@ -106,5 +115,113 @@ class InternalApiTest extends TestCase
             'delete-user',
             ['user_id' => 123]
         );
+    }
+
+    // ==================== Helper functions ====================
+
+    public function testMessageFromData(): void
+    {
+        $data = [
+            'user_id' => 123,
+            'name' => 'John Doe',
+        ];
+
+        $message = InternalApi::messageFromData($data);
+
+        $this->assertEquals(
+            [
+                'data' => $data,
+                'timestamp' => now()->timestamp,
+            ],
+            json_decode(decrypt($message, false), true)
+        );
+    }
+
+    // START: dataFromMessage
+
+    /**
+     * @param array<string, mixed>|mixed $data
+     * @return string
+     */
+    private function getEncryptedMessage(mixed $data, mixed $timestamp = null): string
+    {
+        return Crypt::encryptString(
+            (string)json_encode([
+                'data' => $data,
+                'timestamp' => $timestamp ?? now()->timestamp,
+            ])
+        );
+    }
+
+    public function testDataFromMessage(): void
+    {
+        $data = [
+            'user_id' => 123,
+            'name' => 'John Doe',
+        ];
+        $message = $this->getEncryptedMessage($data);
+
+        $this->assertEquals($data, InternalApi::dataFromMessage($message));
+    }
+
+    public function testDataFromMessageInvalidEncryption(): void
+    {
+        $this->expectException(InvalidMessageException::class);
+        $this->expectExceptionMessage('Failed to decrypt message');
+
+        InternalApi::dataFromMessage('invalid');
+    }
+
+    public function testDataFromMessageInvalidData(): void
+    {
+        $this->expectException(InvalidMessageException::class);
+        $this->expectExceptionMessage('Invalid data');
+
+        InternalApi::dataFromMessage(Crypt::encryptString('invalid'));
+    }
+
+    public function testDataFromMessageInvalidTimestamp(): void
+    {
+        $data = [];
+        $message = $this->getEncryptedMessage($data, 'invalid');
+
+        $this->expectException(InvalidMessageException::class);
+        $this->expectExceptionMessage('Invalid timestamp');
+
+        InternalApi::dataFromMessage($message);
+    }
+
+    public function testDataFromMessageExpiredTimestamp(): void
+    {
+        $data = [];
+        $message = $this->getEncryptedMessage($data, now()->subMinutes(61)->timestamp);
+
+        $this->expectException(InvalidMessageException::class);
+        $this->expectExceptionMessage('Expired message');
+
+        InternalApi::dataFromMessage($message);
+    }
+
+    public function testDataFromMessageDataIsNotArray(): void
+    {
+        $message = $this->getEncryptedMessage('invalid');
+
+        $this->expectException(InvalidMessageException::class);
+        $this->expectExceptionMessage('Data is not an array');
+
+        InternalApi::dataFromMessage($message);
+    }
+
+    // END: dataFromMessage
+
+    public function testRequestingComponent(): void
+    {
+        $request = new Request(
+            server: [
+                'HTTP_X-Internal-Api-From' => 'talk',
+            ]
+        );
+
+        $this->assertEquals(ComponentType::TALK, InternalApi::getRequestingComponent($request));
     }
 }

@@ -8,6 +8,7 @@ use Hyvor\Internal\InternalApi\InternalApiMethod;
 /**
  * Use this class to test the internal API calls of a component
  * @deprecated
+ * @codeCoverageIgnore
  */
 class InternalApiTesting
 {

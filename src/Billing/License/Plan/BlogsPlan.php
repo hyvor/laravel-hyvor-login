@@ -4,17 +4,18 @@ namespace Hyvor\Internal\Billing\License\Plan;
 
 use Hyvor\Internal\Billing\License\BlogsLicense;
 
+/**
+ * @extends PlanAbstract<BlogsLicense>
+ */
 class BlogsPlan extends PlanAbstract
 {
 
     const int GB = 10 ** 9;
 
-    public function config(): void
+    protected function config(): void
     {
-
         // Version 1
         $this->version(1, function () {
-
             $this->plan(
                 'starter',
                 9,
@@ -59,12 +60,10 @@ class BlogsPlan extends PlanAbstract
                     noBranding: true,
                 )
             );
-
         });
 
         // Version 2: 2025-01
         $this->version(2, function () {
-
             $this->plan(
                 'starter',
                 12,
@@ -109,9 +108,6 @@ class BlogsPlan extends PlanAbstract
                     noBranding: true,
                 )
             );
-
         });
-
-
     }
 }

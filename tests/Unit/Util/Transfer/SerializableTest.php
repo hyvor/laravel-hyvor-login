@@ -16,6 +16,7 @@ namespace OtherNamespace {
 namespace Hyvor\Internal\Tests\Unit\Util\Transfer {
 
     use Hyvor\Internal\Util\Transfer\Serializable;
+    use PHPUnit\Framework\Attributes\CoversClass;
     use PHPUnit\Framework\TestCase;
 
     class PleaseSerializeMe
@@ -32,6 +33,7 @@ namespace Hyvor\Internal\Tests\Unit\Util\Transfer {
         public string $name;
     }
 
+    #[CoversClass(Serializable::class)]
     class SerializableTest extends TestCase
     {
 

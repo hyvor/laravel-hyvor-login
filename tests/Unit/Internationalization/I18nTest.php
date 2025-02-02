@@ -4,8 +4,10 @@ namespace Hyvor\Internal\Tests\Unit\Internationalization;
 
 use Hyvor\Internal\Internationalization\I18n;
 use Hyvor\Internal\Tests\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use RuntimeException;
 
+#[CoversClass(I18n::class)]
 class I18nTest extends TestCase
 {
     protected function setUp(): void
@@ -19,6 +21,16 @@ class I18nTest extends TestCase
         $i18n = app(I18n::class);
         $this->assertEquals(['en-US', 'es', 'fr-FR'], $i18n->getAvailableLocales());
         $this->assertEquals('HYVOR', $i18n->getLocaleStrings('en-US')['name']);
+        $this->assertIsArray($i18n->getDefaultLocaleStrings());
+    }
+
+    public function testWhenFolderIsMissing(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not read the locales folder');
+
+        config(['internal.i18n.folder' => '/missing-folder']);
+        $i18n = app(I18n::class);
     }
 
     public function testThrowsOnCantRead(): void
