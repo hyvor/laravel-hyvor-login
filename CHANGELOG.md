@@ -1,5 +1,6 @@
-## Unreleased
+## 2.0.0 - 2025-02-02
 
+- Adds support to billing and resource APIs
 - HasUser trait is now removed due to unintended side effects
 - InternalApiTesting class can no longer be called, use CallsInternalApi trait instead
 - Remove AUTH_PROVIDER env support, use HYVOR_FAKE (internal.fake) instead to mock all auth, billing, and resource
