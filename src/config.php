@@ -48,7 +48,7 @@ return [
          * /api/auth/login - login redirect
          * /api/auth/signup - signup redirect
          */
-        'routes' => true,
+        'routes' => false,
 
         /**
          * If routes is true, set the domain restriction

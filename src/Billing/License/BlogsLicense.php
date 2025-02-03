@@ -41,11 +41,6 @@ class BlogsLicense extends License
          * Link and SEO analyses.
          */
         public bool $analyses = true, // SEO and link analysis
-
-        /**
-         * Whether to disable branding by default.
-         */
-        public bool $noBranding = false,
     )
     {
     }

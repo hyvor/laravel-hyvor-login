@@ -27,7 +27,6 @@ class BlogsPlan extends PlanAbstract
                     talkCredits: 0,
                     postEmails: 0,
                     analyses: false,
-                    noBranding: false,
                 )
             );
 
@@ -42,7 +41,6 @@ class BlogsPlan extends PlanAbstract
                     talkCredits: 100_000,
                     postEmails: 0,
                     analyses: true,
-                    noBranding: true,
                 )
             );
 
@@ -57,7 +55,6 @@ class BlogsPlan extends PlanAbstract
                     talkCredits: 250_000,
                     postEmails: 0,
                     analyses: true,
-                    noBranding: true,
                 )
             );
         });
@@ -75,7 +72,6 @@ class BlogsPlan extends PlanAbstract
                     talkCredits: 0,
                     postEmails: 0,
                     analyses: false,
-                    noBranding: false,
                 )
             );
 
@@ -90,7 +86,6 @@ class BlogsPlan extends PlanAbstract
                     talkCredits: 100_000,
                     postEmails: 25_000,
                     analyses: true,
-                    noBranding: true,
                 )
             );
 
@@ -105,7 +100,6 @@ class BlogsPlan extends PlanAbstract
                     talkCredits: 250_000,
                     postEmails: 100_000,
                     analyses: true,
-                    noBranding: true,
                 )
             );
         });
