@@ -1,3 +1,7 @@
+## 2.0.2 - 2025-02-03
+
+- Resource::register now supports an optional $at param to set a custom date, which is useful when importing resources
+
 ## 2.0.1 - 2025-02-02
 
 - Adds support to billing and resource APIs
