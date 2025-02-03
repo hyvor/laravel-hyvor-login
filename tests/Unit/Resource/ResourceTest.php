@@ -2,6 +2,7 @@
 
 namespace Hyvor\Internal\Tests\Unit\Resource;
 
+use Carbon\Carbon;
 use Hyvor\Internal\InternalApi\InternalApi;
 use Hyvor\Internal\Resource\Resource;
 use Hyvor\Internal\Tests\TestCase;
@@ -26,6 +27,29 @@ class ResourceTest extends TestCase
             $data = InternalApi::dataFromMessage($request->data()['message']);
             $this->assertEquals(10, $data['user_id']);
             $this->assertEquals(20, $data['resource_id']);
+            $this->assertEquals(null, $data['at']);
+
+            $this->assertEquals('POST', $request->method());
+
+            return true;
+        });
+    }
+
+    public function testRegisterWithTime(): void
+    {
+        Http::fake([
+            'https://hyvor.com/api/internal/resource/register' => Http::response()
+        ]);
+
+        $resource = new Resource();
+        $time = Carbon::parse('2021-01-01 12:00:00');
+        $resource->register(10, 20, $time);
+
+        Http::assertSent(function (Request $request) use ($time) {
+            $data = InternalApi::dataFromMessage($request->data()['message']);
+            $this->assertEquals(10, $data['user_id']);
+            $this->assertEquals(20, $data['resource_id']);
+            $this->assertEquals($time->timestamp, $data['at']);
 
             $this->assertEquals('POST', $request->method());
 
