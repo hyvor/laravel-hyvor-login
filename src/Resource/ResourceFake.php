@@ -7,7 +7,7 @@ use Carbon\Carbon;
 final class ResourceFake extends Resource
 {
 
-    /** @var array<array{userId: int, resourceId: int}> */
+    /** @var array<array{userId: int, resourceId: int, at: ?Carbon}> */
     private array $registered = [];
 
     /** @var array<int> */
@@ -20,15 +20,22 @@ final class ResourceFake extends Resource
         });
     }
 
-    public static function assertRegistered(int $userId, int $resourceId): void
-    {
+    public static function assertRegistered(
+        int $userId,
+        int $resourceId,
+        ?Carbon $at = null
+    ): void {
         $resource = app(Resource::class);
         assert($resource instanceof self);
 
         $registered = false;
 
         foreach ($resource->registered as $registered) {
-            if ($registered['userId'] === $userId && $registered['resourceId'] === $resourceId) {
+            if (
+                $registered['userId'] === $userId &&
+                $registered['resourceId'] === $resourceId &&
+                ($at === null || $registered['at']?->getTimestamp() === $at->getTimestamp())
+            ) {
                 $registered = true;
                 break;
             }
@@ -36,7 +43,7 @@ final class ResourceFake extends Resource
 
         \PHPUnit\Framework\Assert::assertTrue(
             $registered,
-            "Resource not registered for user $userId and resource $resourceId"
+            "Resource not registered for user $userId and resource $resourceId" . ($at ? " at $at" : '')
         );
     }
 
@@ -60,6 +67,7 @@ final class ResourceFake extends Resource
         $this->registered[] = [
             'userId' => $userId,
             'resourceId' => $resourceId,
+            'at' => $at,
         ];
     }
 
