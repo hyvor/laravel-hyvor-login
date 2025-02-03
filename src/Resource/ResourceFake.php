@@ -2,6 +2,8 @@
 
 namespace Hyvor\Internal\Resource;
 
+use Carbon\Carbon;
+
 final class ResourceFake extends Resource
 {
 
@@ -50,8 +52,11 @@ final class ResourceFake extends Resource
         );
     }
 
-    public function register(int $userId, int $resourceId): void
-    {
+    public function register(
+        int $userId,
+        int $resourceId,
+        ?Carbon $at = null
+    ): void {
         $this->registered[] = [
             'userId' => $userId,
             'resourceId' => $resourceId,
