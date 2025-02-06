@@ -1,4 +1,4 @@
-## 2.0.3 - 2025-02-04
+## 2.0.4 - 2025-02-04
 
 - Adds Component\Logo class to get logos for components
 
