@@ -52,7 +52,6 @@ enum ComponentType: string
         if ($this === ComponentType::CORE) {
             return $currentUrl;
         } else {
-
             $protocol = strval(parse_url($currentUrl, PHP_URL_SCHEME)) . '://';
             $host = strval(parse_url($currentUrl, PHP_URL_HOST));
 
@@ -68,22 +67,18 @@ enum ComponentType: string
      */
     public function getUrlOfFrom(self $type): string
     {
-
         $coreUrl = $this->getCoreUrl();
 
         if ($type === self::CORE) {
             return $coreUrl;
         } else {
-
             $subdomain = $type->value;
 
             $coreHost = parse_url($coreUrl, PHP_URL_HOST);
             $protocol = parse_url($coreUrl, PHP_URL_SCHEME) . '://';
 
             return $protocol . $subdomain . '.' . $coreHost;
-
         }
-
     }
 
     /**
@@ -108,7 +103,6 @@ enum ComponentType: string
 
     public function plans(): PlanAbstract
     {
-
         $class = match ($this) {
             self::CORE => CorePlan::class,
             self::TALK => TalkPlan::class,
@@ -116,7 +110,6 @@ enum ComponentType: string
         };
 
         return new $class();
-
     }
 
 }

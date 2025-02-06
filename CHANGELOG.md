@@ -1,3 +1,7 @@
+## 2.0.3 - 2025-02-04
+
+- Adds Component\Logo class to get logos for components
+
 ## 2.0.2 - 2025-02-03
 
 - Resource::register now supports an optional $at param to set a custom date, which is useful when importing resources
