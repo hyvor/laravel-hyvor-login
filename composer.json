@@ -7,7 +7,7 @@
     "autoload": {
         "psr-4": {
             "Hyvor\\Internal\\": "src/",
-            "Hyvor\\Internal\\Bundle\\": "bundle/"
+            "Hyvor\\Internal\\Bundle\\": "bundle/src"
         }
     },
     "autoload-dev": {

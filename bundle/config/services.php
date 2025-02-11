@@ -5,5 +5,5 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return function (ContainerConfigurator $container): void {
     $services = $container->services();
     // load all files as services
-    $services->load('Hyvor\\Internal\\Bundle\\', '../');
+    $services->load('Hyvor\\Internal\\Bundle\\', '../src');
 };

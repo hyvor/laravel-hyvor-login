@@ -36,6 +36,7 @@ class HyvorAuthenticator extends AbstractAuthenticator
             new UserBadge(
                 $username,
                 function (string $username): ?AuthUser {
+                    return null;
                     return AuthUser::fromArray([
                         'id' => 1,
                         'username' => $username,
