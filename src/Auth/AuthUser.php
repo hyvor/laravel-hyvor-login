@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Hyvor\Internal\Auth;
 
+
 /**
  * @phpstan-type AuthUserArray array{
  *  id: int,
