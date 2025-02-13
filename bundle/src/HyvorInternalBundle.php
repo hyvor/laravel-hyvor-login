@@ -45,6 +45,7 @@ class HyvorInternalBundle extends AbstractBundle
         $container->services()
             ->get(InternalConfig::class)
             ->args([
+                '%env(APP_SECRET)%',
                 $config['component'],
                 $config['instance'],
                 $config['private_instance'],

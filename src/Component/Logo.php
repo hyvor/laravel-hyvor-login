@@ -2,9 +2,6 @@
 
 namespace Hyvor\Internal\Component;
 
-use Hyvor\Internal\InternalApi\ComponentType;
-use Hyvor\Internal\InternalApi\InstanceUrl;
-
 class Logo
 {
 
@@ -13,7 +10,7 @@ class Logo
         return __DIR__ . '/../assets/logo';
     }
 
-    public static function svg(ComponentType $component, ?int $size = null): string
+    public static function svg(Component $component, ?int $size = null): string
     {
         $path = self::dir() . "/{$component->value}.svg";
         $svg = (string)file_get_contents($path);
@@ -30,9 +27,9 @@ class Logo
         return $svg;
     }
 
-    public static function url(ComponentType $component): string
+    public static function url(Component $component): string
     {
-        $coreUrl = InstanceUrl::getInstanceUrl();
+        $coreUrl = ComponentUrlResolver::getInstanceUrl();
         return $coreUrl . "/api/public/logo/{$component->value}.svg";
     }
 

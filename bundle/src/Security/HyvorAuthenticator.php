@@ -24,7 +24,7 @@ class HyvorAuthenticator extends AbstractAuthenticator
 
     public function supports(Request $request): ?bool
     {
-        return false;
+        return true;
     }
 
     public function authenticate(Request $request): Passport

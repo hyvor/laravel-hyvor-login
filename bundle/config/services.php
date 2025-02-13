@@ -12,4 +12,5 @@ return function (ContainerConfigurator $container): void {
     $services->load('Hyvor\\Internal\\Bundle\\', '../src');
     $services->load('Hyvor\\Internal\\Auth\\', '../../src/Auth');
     $services->load('Hyvor\\Internal\\InternalApi\\', '../../src/InternalApi');
+    $services->load('Hyvor\\Internal\\Util\\', '../../src/Util');
 };

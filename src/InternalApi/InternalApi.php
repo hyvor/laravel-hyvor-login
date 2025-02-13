@@ -2,8 +2,12 @@
 
 namespace Hyvor\Internal\InternalApi;
 
+use Hyvor\Internal\Bundle\InternalConfig;
+use Hyvor\Internal\Component\Component;
+use Hyvor\Internal\Component\ComponentUrlResolver;
 use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
 use Hyvor\Internal\InternalApi\Exceptions\InvalidMessageException;
+use Hyvor\Internal\Util\Crypt\Encryption;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
@@ -16,13 +20,19 @@ use Illuminate\Support\Facades\Http;
 class InternalApi
 {
 
+    public function __construct(
+        private InternalConfig $config,
+        private Encryption $encryption,
+    ) {
+    }
+
     /**
      * @param array<mixed> $data
      * @param InternalApiMethod|'GET'|'POST' $method
      * @return array<mixed>
      */
     public function call(
-        ComponentType $to,
+        Component $to,
         InternalApiMethod|string $method,
         /**
          * This is the part after the `/api/internal/` in the URL
@@ -30,7 +40,7 @@ class InternalApi
          */
         string $endpoint,
         array $data = [],
-        ?ComponentType $from = null
+        ?Component $from = null
     ): array {
         if (is_string($method)) {
             $method = InternalApiMethod::from($method);
@@ -38,12 +48,13 @@ class InternalApi
         $methodFunction = strtolower($method->value);
 
         $endpoint = ltrim($endpoint, '/');
-        $componentUrl = InstanceUrl::createPrivate()->componentUrl($to);
+        $componentUrl = new ComponentUrlResolver($this->config->getPrivateInstanceWithFallback())->of($to);
+
         $url = $componentUrl . '/api/internal/' . $endpoint;
 
         $message = self::messageFromData($data);
 
-        $from ??= ComponentType::current();
+        $from ??= Component::current();
 
         $headers = [
             'X-Internal-Api-From' => $from->value,
@@ -80,7 +91,7 @@ class InternalApi
      * @param array<mixed> $data
      * @throws \Exception
      */
-    public static function messageFromData(array $data): string
+    public function messageFromData(array $data): string
     {
         $json = json_encode([
             'data' => $data,
@@ -88,7 +99,7 @@ class InternalApi
         ]);
         assert(is_string($json));
 
-        return Crypt::encryptString($json);
+        return $this->encryption->encryptString($json);
     }
 
     /**
@@ -135,11 +146,11 @@ class InternalApi
     /**
      * Helper to get the requesting component from a request
      */
-    public static function getRequestingComponent(Request $request): ComponentType
+    public static function getRequestingComponent(Request $request): Component
     {
         $from = $request->header('X-Internal-Api-From');
         assert(is_string($from));
-        return ComponentType::from($from);
+        return Component::from($from);
     }
 
 }

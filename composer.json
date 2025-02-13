@@ -24,7 +24,7 @@
     ],
     "require-dev": {
         "orchestra/testbench": "^9.0",
-        "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan": "^2.1.4",
         "phpunit/phpunit": "^10.5"
     },
     "extra": {
@@ -39,6 +39,7 @@
         "ext-intl": "*",
         "guzzlehttp/guzzle": "^7.8",
         "timacdonald/log-fake": "^v2.3.0",
-        "symfony/security-bundle": "^7.2"
+        "symfony/security-bundle": "^7.2",
+        "illuminate/encryption": "*"
     }
 }
