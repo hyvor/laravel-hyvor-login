@@ -7,7 +7,7 @@ class Logo
 
     public static function dir(): string
     {
-        return __DIR__ . '/../assets/logo';
+        return __DIR__ . '/../../assets/logo';
     }
 
     public static function svg(Component $component, ?int $size = null): string
