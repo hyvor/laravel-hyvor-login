@@ -9,10 +9,10 @@ use Hyvor\Internal\InternalApi\Exceptions\InternalApiCallFailedException;
 use Hyvor\Internal\InternalApi\Exceptions\InvalidMessageException;
 use Hyvor\Internal\Util\Crypt\Encryption;
 use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Http;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Call the internal API between components
@@ -23,6 +23,7 @@ class InternalApi
     public function __construct(
         private InternalConfig $config,
         private Encryption $encryption,
+        private HttpClientInterface $client,
     ) {
     }
 
@@ -30,6 +31,7 @@ class InternalApi
      * @param array<mixed> $data
      * @param InternalApiMethod|'GET'|'POST' $method
      * @return array<mixed>
+     * @throws InternalApiCallFailedException
      */
     public function call(
         Component $to,
@@ -45,46 +47,48 @@ class InternalApi
         if (is_string($method)) {
             $method = InternalApiMethod::from($method);
         }
-        $methodFunction = strtolower($method->value);
 
         $endpoint = ltrim($endpoint, '/');
         $componentUrl = new ComponentUrlResolver($this->config->getPrivateInstanceWithFallback())->of($to);
 
         $url = $componentUrl . '/api/internal/' . $endpoint;
 
-        $message = self::messageFromData($data);
-
-        $from ??= Component::current();
+        $message = $this->messageFromData($data);
+        $from ??= $this->config->getComponent();
 
         $headers = [
+            'Content-Type' => 'application/json',
             'X-Internal-Api-From' => $from->value,
             'X-Internal-Api-To' => $to->value,
         ];
 
         try {
-            $response = Http::
-            withHeaders($headers)
-                ->$methodFunction(
-                    $url,
-                    [
+            $response = $this->client->request(
+                $method->value,
+                $url,
+                [
+                    'headers' => $headers,
+                    'body' => [
                         'message' => $message,
-                    ]
+                    ],
+                ]
+            );
+
+            $status = $response->getStatusCode();
+
+            if ($status !== 200) {
+                throw new InternalApiCallFailedException(
+                    'Internal API call to ' . $url . ' failed. Status code: ' . $status .
+                    ' - ' . substr($response->getContent(), 0, 250)
                 );
-        } catch (ConnectionException $e) {
+            }
+
+            return $response->toArray();
+        } catch (TransportExceptionInterface $e) {
             throw new InternalApiCallFailedException(
                 'Internal API call to ' . $url . ' failed. Connection error: ' . $e->getMessage(),
             );
         }
-
-        if (!$response->ok()) {
-            throw new InternalApiCallFailedException(
-                'Internal API call to ' . $url . ' failed. Status code: ' .
-                $response->status() . ' - ' .
-                substr($response->body(), 0, 250)
-            );
-        }
-
-        return (array)$response->json();
     }
 
     /**

@@ -35,21 +35,17 @@ class HyvorAuthenticator extends AbstractAuthenticator
             throw new AuthenticationException('Hyvor session cookie not found');
         }
 
-        // $user = Auth::check();
-        $username = 'test';
         $user = $this->auth->check();
+
+        if ($user === false) {
+            throw new AuthenticationException('User not logged in');
+        }
 
         return new SelfValidatingPassport(
             new UserBadge(
-                $username,
-                function (string $username): ?AuthUser {
-                    return null;
-                    return AuthUser::fromArray([
-                        'id' => 1,
-                        'username' => $username,
-                        'name' => 'Test User',
-                        'email' => 'test@hyvor.com'
-                    ]);
+                $user->username,
+                function (string $username) use ($user): AuthUser {
+                    return $user;
                 }
             )
         );
