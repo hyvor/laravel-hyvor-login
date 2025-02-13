@@ -18,6 +18,11 @@ use Illuminate\Support\Collection;
 class Auth
 {
 
+    public function __construct(
+        private InternalApi $internalApi
+    ) {
+    }
+
     public const HYVOR_SESSION_COOKIE_NAME = 'authsess';
 
     /**
@@ -31,7 +36,7 @@ class Auth
             return false;
         }
 
-        $response = InternalApi::call(
+        $response = $this->internalApi->call(
             ComponentType::CORE,
             InternalApiMethod::POST,
             '/auth/check',

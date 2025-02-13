@@ -21,7 +21,7 @@ class InternalApi
      * @param InternalApiMethod|'GET'|'POST' $method
      * @return array<mixed>
      */
-    public static function call(
+    public function call(
         ComponentType $to,
         InternalApiMethod|string $method,
         /**

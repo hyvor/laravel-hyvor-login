@@ -16,6 +16,12 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 class HyvorAuthenticator extends AbstractAuthenticator
 {
 
+    public function __construct(
+        private Auth $auth
+    ) {
+    }
+
+
     public function supports(Request $request): ?bool
     {
         return true;
@@ -31,6 +37,7 @@ class HyvorAuthenticator extends AbstractAuthenticator
 
         // $user = Auth::check();
         $username = 'test';
+        $user = $this->auth->check();
 
         return new SelfValidatingPassport(
             new UserBadge(
