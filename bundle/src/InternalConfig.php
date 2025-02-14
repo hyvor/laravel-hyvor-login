@@ -10,8 +10,8 @@ class InternalConfig
     public function __construct(
 
         /**
-         * This is APP_KEY in laravel and APP_SECRET in symfony
-         * It is in the Laravel format: base64:<key>
+         * This is APP_KEY in laravel, which is base64:<key>
+         * and APP_SECRET in symfony which is <key> in base64
          */
         private readonly string $appSecret,
 
@@ -25,7 +25,6 @@ class InternalConfig
     ) {
     }
 
-    // returns the app secret with the base64: prefix
     public function getAppSecretRaw(): string
     {
         return $this->appSecret;
@@ -33,7 +32,7 @@ class InternalConfig
 
     public function getAppSecret(): string
     {
-        return base64_decode(substr($this->appSecret, 7));
+        return base64_decode($this->appSecret);
     }
 
     public function getComponent(): Component

@@ -38,6 +38,7 @@ class HyvorInternalBundle extends AbstractBundle
         $container->import('../config/services.php');
 
         // ENV DEFAULTS
+        $container->parameters()->set('env(HYVOR_INSTANCE)', 'https://hyvor.com');
         $container->parameters()->set('env(HYVOR_PRIVATE_INSTANCE)', null);
         $container->parameters()->set('env(HYVOR_FAKE)', '0');
 
