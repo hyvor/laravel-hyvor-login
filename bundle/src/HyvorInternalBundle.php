@@ -2,11 +2,13 @@
 
 namespace Hyvor\Internal\Bundle;
 
+use Hyvor\Internal\Auth\Auth;
+use Hyvor\Internal\Auth\AuthFake;
+use Hyvor\Internal\Auth\AuthInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
-use Symfony\Component\DependencyInjection\Loader\Configurator;
 
 class HyvorInternalBundle extends AbstractBundle
 {
@@ -35,6 +37,7 @@ class HyvorInternalBundle extends AbstractBundle
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+        // SERVICES
         $container->import('../config/services.php');
 
         // ENV DEFAULTS
@@ -52,6 +55,26 @@ class HyvorInternalBundle extends AbstractBundle
                 $config['private_instance'],
                 $config['fake'],
             ]);
+
+        // Main Services
+        $container->services()->alias(AuthInterface::class, Auth::class);
+
+        $this->setupFake($container, $builder);
+    }
+
+    private function setupFake(ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        if ($container->env() !== 'dev') {
+            return;
+        }
+
+        $isFake = (bool)$builder->resolveEnvPlaceholders('%env(HYVOR_FAKE)%', true);
+
+        if (!$isFake) {
+            return;
+        }
+
+        $container->services()->alias(AuthInterface::class, AuthFake::class);
     }
 
 }

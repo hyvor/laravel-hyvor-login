@@ -3,6 +3,7 @@
 namespace Hyvor\Internal\Bundle\Security;
 
 use Hyvor\Internal\Auth\Auth;
+use Hyvor\Internal\Auth\AuthInterface;
 use Hyvor\Internal\Auth\AuthUser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +18,7 @@ class HyvorAuthenticator extends AbstractAuthenticator
 {
 
     public function __construct(
-        private Auth $auth
+        private AuthInterface $auth
     ) {
     }
 
@@ -31,11 +32,11 @@ class HyvorAuthenticator extends AbstractAuthenticator
     {
         $cookie = $request->cookies->get(Auth::HYVOR_SESSION_COOKIE_NAME);
 
-        if ($cookie === null) {
+        if (!is_string($cookie)) {
             throw new AuthenticationException('Hyvor session cookie not found');
         }
 
-        $user = $this->auth->check();
+        $user = $this->auth->check($cookie);
 
         if ($user === false) {
             throw new AuthenticationException('User not logged in');

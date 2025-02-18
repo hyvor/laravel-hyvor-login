@@ -41,6 +41,7 @@
         "timacdonald/log-fake": "^v2.3.0",
         "symfony/security-bundle": "^7.2",
         "illuminate/encryption": "*",
-        "symfony/http-client": "^7.2"
+        "symfony/http-client": "^7.2",
+        "symfony/expression-language": "^7.2"
     }
 }

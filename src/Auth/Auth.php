@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 /**
  * @phpstan-import-type AuthUserArray from AuthUser
  */
-class Auth
+class Auth implements AuthInterface
 {
 
     public function __construct(
@@ -28,14 +28,8 @@ class Auth
     /**
      * @throws InternalApiCallFailedException
      */
-    public function check(): false|AuthUser
+    public function check(string $cookie): false|AuthUser
     {
-        $cookie = $_COOKIE[self::HYVOR_SESSION_COOKIE_NAME] ?? null;
-
-        if (!$cookie) {
-            return false;
-        }
-
         $response = $this->internalApi->call(
             Component::CORE,
             InternalApiMethod::POST,

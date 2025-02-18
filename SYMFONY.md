@@ -52,3 +52,31 @@ return static function (ContainerBuilder $container, SecurityConfig $security): 
 
 };
 ```
+
+## Testing
+
+### Step 1: Faking Authentication
+
+In the base test case, you can fake the authentication:
+
+```php
+use Hyvor\Internal\Auth\AuthFake;
+
+class WebTestCase extends \Symfony\Bundle\FrameworkBundle\Test\WebTestCase
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // sets the user to a user with ID 1 and other default values
+        AuthFake::enableForSymfony($this->getContainer(), ['id' => 1]);
+    }
+}
+```
+
+When calling the APIs in tests, setting the `authsess` cookie to a string value is required.
+
+```php
+$this->client->getCookieJar()->set(new Cookie('authsess', 'default'));
+$this->client->request('GET', '/api/console/...');
+```
