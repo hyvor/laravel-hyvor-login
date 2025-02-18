@@ -5,6 +5,7 @@ namespace Hyvor\Internal\Bundle;
 use Hyvor\Internal\Auth\Auth;
 use Hyvor\Internal\Auth\AuthFake;
 use Hyvor\Internal\Auth\AuthInterface;
+use Hyvor\Internal\InternalFake;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -74,7 +75,24 @@ class HyvorInternalBundle extends AbstractBundle
             return;
         }
 
-        $container->services()->alias(AuthInterface::class, AuthFake::class);
+        $class = InternalFake::class;
+        if (class_exists('App\InternalFake')) {
+            $class = 'App\InternalFake';
+        }
+
+        /** @var class-string<InternalFake> $class */
+        $fakeConfig = new $class;
+        $user = $fakeConfig->user();
+
+        $container
+            ->services()
+            ->alias(AuthInterface::class, AuthFake::class);
+
+        $container->services()
+            ->get(AuthFake::class)
+            ->args([
+                $user?->toArray(),
+            ]);
     }
 
 }

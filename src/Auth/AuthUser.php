@@ -68,6 +68,27 @@ class AuthUser implements UserInterface
         );
     }
 
+    /**
+     * @return AuthUserArray
+     */
+    public function toArray(): array
+    {
+        /** @var AuthUserArray $user */
+        $user = [
+            'id' => $this->id,
+            'username' => $this->username,
+            'name' => $this->name,
+            'email' => $this->email,
+            'email_relay' => $this->email_relay,
+            'picture_url' => $this->picture_url,
+            'location' => $this->location,
+            'bio' => $this->bio,
+            'website_url' => $this->website_url,
+        ];
+
+        return $user;
+    }
+
     public function getRoles(): array
     {
         return [UserRole::USER];

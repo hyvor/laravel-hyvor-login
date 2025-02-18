@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\Container;
 /**
  * @phpstan-import-type AuthUserArrayPartial from AuthUser
  */
-final class AuthFake extends Auth
+final class AuthFake implements AuthInterface
 {
 
     /**
@@ -26,8 +26,15 @@ final class AuthFake extends Auth
      */
     public ?AuthUser $user = null;
 
-    public function __construct()
+    /**
+     * @param AuthUser|AuthUserArrayPartial|null $user
+     */
+    public function __construct(null|AuthUser|array $user = null)
     {
+        if (is_array($user)) {
+            $user = self::generateUser($user);
+        }
+        $this->user = $user;
     }
 
     /**
